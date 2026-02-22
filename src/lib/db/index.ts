@@ -1,0 +1,109 @@
+import { drizzle } from "drizzle-orm/sqlite-proxy";
+import Database from "@tauri-apps/plugin-sql";
+import { appDataDir, join } from "@tauri-apps/api/path";
+import { customers, categories } from "./schema";
+import * as schema from "./schema";
+import { eq, sql } from "drizzle-orm";
+import { seed } from "./seed";
+
+export * from "./schema";
+
+// Fonction pour connecter Drizzle à Tauri SQL
+const sqlite = await Database.load("sqlite:kfet.db");
+
+// Log du chemin de la base de données
+const appData = await appDataDir();
+const dbPath = await join(appData, "kfet.db");
+console.log("📂 Chemin de la base de données SQLite :", dbPath);
+
+export const db = drizzle(async (sql, params, method) => {
+  try {
+    // Modifications (écriture)
+    if (method === "run") {
+        await sqlite.execute(sql, params);
+        return { rows: [] };
+    }
+
+    // Lectures (SELECT)
+    const rows = await sqlite.select<any[]>(sql, params);
+    
+    // DEBUG: On affiche ce que SQLite renvoie réellement
+    if (rows.length > 0) {
+        console.log("🔍 [DB PROXY] RAW DATA FROM SQLITE:", rows[0]);
+    }
+
+    // Pour Drizzle sqlite-proxy, la méthode la plus robuste est de renvoyer 
+    // un tableau de tableaux de valeurs (any[][]). 
+    // Drizzle se charge de remaper ces valeurs vers les objets JS selon son schéma.
+    return { rows: rows.map(r => Object.values(r)) };
+    
+  } catch (e: any) {
+    console.error("❌ DB PROXY ERROR:", e);
+    return { rows: [] };
+  }
+}, { schema }); 
+
+// Re-export schema for convenience
+export * from "./schema";
+
+export async function initDb() {
+    // Dans Drizzle avec SQLite Proxy, la création de table auto est complexe sans migration.
+    // On va utiliser des requêtes raw SQL pour créer les tables si elles n'existent pas
+    // car 'drizzle-kit push' ne marche pas directement sur le fichier sqlite local via proxy en runtime.
+    
+    await sqlite.execute(`
+    CREATE TABLE IF NOT EXISTS categories (
+      "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+      "name" TEXT NOT NULL,
+      "dept" TEXT NOT NULL,
+      "year" TEXT NOT NULL
+    );
+    `);
+
+    await sqlite.execute(`
+    CREATE TABLE IF NOT EXISTS customers (
+      "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+      "firstName" TEXT NOT NULL,
+      "lastName" TEXT NOT NULL,
+      "account" REAL DEFAULT 0,
+      "isKfetier" INTEGER DEFAULT 0,
+      "categoryId" INTEGER REFERENCES categories(id)
+    );
+    `);
+
+    await seed(db);
+}
+
+export async function resetDb() {
+  console.log("Resetting database (dropping and creating tables)...");
+  try {
+    // Drop tables to clear everything (including potential schema mismatches)
+    await sqlite.execute("DROP TABLE IF EXISTS customers;");
+    await sqlite.execute("DROP TABLE IF EXISTS categories;");
+    
+    // Re-initialize tables with the current schema
+    await initDb();
+    
+    console.log("Database successfully reset and re-seeded.");
+  } catch (error) {
+    console.error("Error during database reset:", error);
+    throw error;
+  }
+}
+
+export async function getCustomers() {
+  // Utilisation de Drizzle Query Builder avec jointure
+  return await db.select({
+      id: customers.id,
+      firstName: customers.firstName,
+      lastName: customers.lastName,
+      account: customers.account,
+      isKfetier: customers.isKfetier,
+      categoryId: customers.categoryId,
+      dept: categories.dept,
+      year: categories.year,
+      categoryName: categories.name
+  })
+  .from(customers)
+  .leftJoin(categories, eq(customers.categoryId, categories.id));
+}
