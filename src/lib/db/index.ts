@@ -6,8 +6,6 @@ import * as schema from "./schema";
 import { eq, sql } from "drizzle-orm";
 import { seed } from "./seed";
 
-export * from "./schema";
-
 // Fonction pour connecter Drizzle à Tauri SQL
 const sqlite = await Database.load("sqlite:kfet.db");
 
@@ -105,5 +103,22 @@ export async function getCustomers() {
       categoryName: categories.name
   })
   .from(customers)
-  .leftJoin(categories, eq(customers.categoryId, categories.id));
+  .leftJoin(categories, eq(customers.categoryId, categories.id))
+  .all();
+}
+
+export async function getDepts() {
+  const result = await db.select({ dept: categories.dept })
+    .from(categories)
+    .all();
+  // On retourne une liste unique de départements
+  return Array.from(new Set(result.map(r => r.dept))).filter(Boolean).sort();
+}
+
+export async function getYears() {
+  const result = await db.select({ year: categories.year })
+    .from(categories)
+    .all();
+  // On retourne une liste unique d'années
+  return Array.from(new Set(result.map(r => r.year))).filter(Boolean).sort();
 }

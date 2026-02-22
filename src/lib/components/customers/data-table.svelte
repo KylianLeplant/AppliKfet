@@ -1,5 +1,12 @@
 <script lang="ts" generics="TData, TValue">
-  import { type ColumnDef, getCoreRowModel } from "@tanstack/table-core";
+  import { 
+    type ColumnDef, 
+    getCoreRowModel, 
+    getFilteredRowModel, 
+    getSortedRowModel,
+    type ColumnFiltersState,
+    type SortingState
+  } from "@tanstack/table-core";
   import {
     createSvelteTable,
     FlexRender,
@@ -9,16 +16,43 @@
   type DataTableProps<TData, TValue> = {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
+    columnFilters?: ColumnFiltersState;
   };
  
-  let { data, columns }: DataTableProps<TData, TValue> = $props();
+  let { data, columns, columnFilters = $bindable([]) }: DataTableProps<TData, TValue> = $props();
  
+  let sorting = $state<SortingState>([]);
+
   const table = createSvelteTable({
     get data() {
       return data;
     },
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: (updater) => {
+      if (typeof updater === "function") {
+        columnFilters = updater(columnFilters);
+      } else {
+        columnFilters = updater;
+      }
+    },
+    onSortingChange: (updater) => {
+      if (typeof updater === "function") {
+        sorting = updater(sorting);
+      } else {
+        sorting = updater;
+      }
+    },
+    state: {
+      get columnFilters() {
+        return columnFilters;
+      },
+      get sorting() {
+        return sorting;
+      }
+    }
   });
 </script>
  
