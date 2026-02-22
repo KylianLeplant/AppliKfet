@@ -1,0 +1,5 @@
+- faire une page pour consulter les prix 
+- pouvoir filtrer par dept/année/kfetier?
+- pouvoir rajouter argent/faire payer produit à un client
+- pouvoir changer les prix
+- avoir des stats d'achats
