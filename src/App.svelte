@@ -1,12 +1,18 @@
 <script lang="ts">
     import CustomersPage from '$lib/components/customers/CustomersPage.svelte';
     import { onMount } from "svelte";
-    import { initDb, resetDb, type ProductCategory } from "$lib/db";
+    import { initDb, resetDb, type ProductCategory, type Customer } from "$lib/db";
     import CatalogPage from "$lib/components/shop/CatalogPage.svelte";
     import ProductsPage from "$lib/components/shop/ProductsPage.svelte";
     
     let currentView = $state<"home" | "customers" | "catalog" | "products">("home");
     let selectedCategory = $state<ProductCategory | null>(null);
+    let selectedCustomerOrder = $state<Customer | null>(null);
+
+    function handleStartOrder(customer: Customer) {
+        selectedCustomerOrder = customer;
+        currentView = "catalog";
+    }
 
     function navigateToProducts(category: ProductCategory) {
         selectedCategory = category;
@@ -41,18 +47,7 @@
             >
                 Accueil
             </button>
-            <button 
-                onclick={() => currentView = "customers"}
-                class="px-4 py-2 rounded-lg font-bold transition-all {currentView === 'customers' ? 'bg-white text-indigo-600 shadow-md' : 'text-white hover:bg-white/20'}"
-            >
-                Liste Clients
-            </button>
-            <button 
-                onclick={() => currentView = "catalog"}
-                class="px-4 py-2 rounded-lg font-bold transition-all {currentView === 'catalog' ? 'bg-white text-indigo-600 shadow-md' : 'text-white hover:bg-white/20'}"
-            >
-                Catalogue
-            </button>
+            
         </div>
         
         <button onclick={handleReset} class="bg-red-500/80 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors">
@@ -75,22 +70,35 @@
             </div>
         {:else if currentView === "customers"}
             <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <CustomersPage />
+                <CustomersPage onStartOrder={handleStartOrder} />
             </div>
         {:else if currentView === "catalog"}
             <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <CatalogPage onCategorySelect={navigateToProducts} />
+                <CatalogPage 
+                    onCategorySelect={navigateToProducts} 
+                    customer={selectedCustomerOrder} 
+                />
             </div>
         {:else if currentView === "products"}
             <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <button 
-                  onclick={() => currentView = "catalog"}
-                  class="mb-4 text-white/80 hover:text-white flex items-center gap-2 font-bold"
-                >
-                  ← Retour au catalogue
-                </button>
+                <div class="flex justify-between items-center mb-6">
+                    <button 
+                        onclick={() => currentView = "catalog"}
+                        class="text-white/80 hover:text-white flex items-center gap-2 font-bold"
+                    >
+                        ← Retour au catalogue
+                    </button>
+                    {#if selectedCustomerOrder}
+                        <div class="bg-white/20 px-4 py-2 rounded-lg text-white font-semibold">
+                            Commande pour : {selectedCustomerOrder.firstName} {selectedCustomerOrder.lastName}
+                        </div>
+                    {/if}
+                </div>
                 {#if selectedCategory}
-                  <ProductsPage productCategory={selectedCategory} />
+                  <ProductsPage 
+                    productCategory={selectedCategory} 
+                    customer={selectedCustomerOrder} 
+                  />
                 {/if}
             </div>
         {/if}

@@ -1,8 +1,9 @@
 <script lang="ts">
     import { Card } from "$lib/components/ui/card/index.js";
     
-    let { name, imagePath, onclick }: { 
+    let { name, subtitle, imagePath, onclick }: { 
         name: string,
+        subtitle?: string,
         imagePath: string | null, 
         onclick: () => void 
     } = $props();
@@ -29,7 +30,10 @@
     {:else}
         <div class="absolute inset-0 w-full h-full bg-white"></div>
     {/if}
-    <div class="bottom-0 w-full bg-black/60 text-white text-center py-3 absolute backdrop-blur-md z-10">
-        <h3 class="font-bold text-base px-2 truncate">{name}</h3>
+    <div class="bottom-0 w-full bg-black/60 text-white text-center py-2 absolute backdrop-blur-md z-10 transition-all group-hover:bg-black/80">
+        <h3 class="font-bold text-sm px-2 truncate">{name}</h3>
+        {#if subtitle}
+            <p class="text-xs text-indigo-300 font-mono font-bold">{subtitle}</p>
+        {/if}
     </div>
 </Card>
