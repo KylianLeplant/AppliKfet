@@ -5,10 +5,19 @@
   import { getCustomers, getDepts, getYears, type Customer, initDb } from "$lib/db";
   import type { ColumnFiltersState } from "@tanstack/table-core";
 
+  let { selectedCustomer = $bindable(null) }: { selectedCustomer?: Customer | null } = $props();
+
   let customers: Customer[] = $state([]);
   let depts: string[] = $state([]);
   let years: string[] = $state([]);
   let columnFilters = $state<ColumnFiltersState>([]);
+  let selectedRowId = $state<string | null>(null);
+
+  $effect(() => {
+    if (!selectedCustomer) {
+      selectedRowId = null;
+    }
+  });
 
   onMount(async () => {
     await initDb();
@@ -81,5 +90,11 @@
     </div>
   </div>
 
-  <DataTable data={customers} {columns} bind:columnFilters />
+  <DataTable 
+    data={customers} 
+    {columns} 
+    bind:columnFilters 
+    bind:selectedRowId
+    onRowClick={(customer) => selectedCustomer = customer}
+  />
 </div>

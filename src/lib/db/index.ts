@@ -69,6 +69,27 @@ export async function initDb() {
     );
     `);
 
+    await sqlite.execute(`
+    CREATE TABLE IF NOT EXISTS productsCategories (
+      "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+      "name" TEXT NOT NULL,
+      "imagePath" TEXT
+    );
+    `);
+
+    await sqlite.execute(`
+    CREATE TABLE IF NOT EXISTS products (
+      "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+      "name" TEXT NOT NULL,
+      "price" REAL NOT NULL,
+      "priceForThree" REAL,
+      "priceForKfetier" REAL NOT NULL,
+      "priceForThreeKfetier" REAL,
+      "categoryId" INTEGER REFERENCES productsCategories(id),
+      "imagePath" TEXT
+    );
+    `);
+
     await seed(db);
 }
 
@@ -76,6 +97,8 @@ export async function resetDb() {
   console.log("Resetting database (dropping and creating tables)...");
   try {
     // Drop tables to clear everything (including potential schema mismatches)
+    await sqlite.execute("DROP TABLE IF EXISTS products;");
+    await sqlite.execute("DROP TABLE IF EXISTS productsCategories;");
     await sqlite.execute("DROP TABLE IF EXISTS customers;");
     await sqlite.execute("DROP TABLE IF EXISTS categories;");
     

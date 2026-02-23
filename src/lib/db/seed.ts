@@ -1,4 +1,4 @@
-import { categories, customers } from "./schema";
+import { categories, customers, productsCategories, products } from "./schema";
 import { eq } from "drizzle-orm";
 
 export async function seed(db: any) {
@@ -72,5 +72,54 @@ export async function seed(db: any) {
         }
     } catch (e) {
         console.error("❌ Seed Customers error:", e);
+    }
+    try {
+        const existingProductsCats = await db.select().from(productsCategories);
+        if (existingProductsCats.length === 0) {
+            console.log("Seeding sample product categories...");
+            const sampleProductCategories = [
+                { name: "Boissons", imagePath: null },
+                { name: "Snacks", imagePath: null },
+                { name: "Midi", imagePath: null },
+                { name: "St-Michel", imagePath: null },
+                { name: "suppléments", imagePath: null }
+            ];
+            for (const cat of sampleProductCategories) {
+                await db.insert(productsCategories).values(cat);
+            }
+            console.log("Product categories seeded OK.");
+        }
+    } catch (e) {
+        console.error("❌ Seed Product Categories error:", e);
+    }
+
+    try {
+        const existingProducts = await db.select().from(products);
+        if (existingProducts.length === 0) {
+            console.log("Seeding sample products...");
+            const allProductCats: any[] = await db.select().from(productsCategories);
+            const sampleProducts = [
+                { name: "Breizh-Cola", price: 1.5, priceForThree: 4.0, priceForKfetier: 1.2, priceForThreeKfetier: 3.5, categoryId: allProductCats.find(c => c.name === "Boissons")?.id, imagePath: null },
+                { name: "Pizza", price: 3, priceForThree: null, priceForKfetier: 2.8, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Midi")?.id, imagePath: null },
+                { name: "Croques-monsieur x2", price: 1.6, priceForThree: null, priceForKfetier: 1.4, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Midi")?.id, imagePath: null },
+                { name: "Croques-monsieur x4", price: 3, priceForThree: null, priceForKfetier: 2.8, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Midi")?.id, imagePath: null },
+                { name: "Eau Minérale", price: 0.5, priceForThree: null, priceForKfetier: 0.5, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Boissons")?.id, imagePath: null },
+                { name: "Madeleine nature", price: 0.2, priceForThree: 0.5, priceForKfetier: 0.15, priceForThreeKfetier: 0.45, categoryId: allProductCats.find(c => c.name === "St-Michel")?.id, imagePath: null },
+                { name: "Madeleines chocolat", price: 0.3, priceForThree: 0.8, priceForKfetier: 0.25, priceForThreeKfetier: 0.7, categoryId: allProductCats.find(c => c.name === "St-Michel")?.id, imagePath: null },
+                { name: "Brownies", price: 2.0, priceForThree: null, priceForKfetier: 1.5, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "St-Michel")?.id, imagePath: null },
+                { name: "Kinder Bueno", price: 0.8, priceForThree: null, priceForKfetier: 0.7, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Snacks")?.id, imagePath: null },
+                { name: "M&M's", price: 0.6, priceForThree: null, priceForKfetier: 0.5, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Snacks")?.id, imagePath: null },
+                { name: "Barre de céréales", price: 1.0, priceForThree: null, priceForKfetier: 0.8, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Snacks")?.id, imagePath: null },
+                { name: "Supplément poivrons", price: 0.5, priceForThree: null, priceForKfetier: 0.4, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "suppléments")?.id, imagePath: null },
+                { name: "Supplément oignons", price: 0.5, priceForThree: null, priceForKfetier: 0.4, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "suppléments")?.id, imagePath: null },
+                { name: "Supplément champignons", price: 0.5, priceForThree: null, priceForKfetier: 0.4, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "suppléments")?.id, imagePath: null }
+            ];
+            for (const prod of sampleProducts) {
+                await db.insert(products).values(prod);
+            }
+            console.log("Products seeded OK.");
+        }
+    } catch (e) {
+        console.error("❌ Seed Products error:", e);
     }
 }

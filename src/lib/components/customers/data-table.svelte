@@ -17,9 +17,17 @@
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
     columnFilters?: ColumnFiltersState;
+    selectedRowId?: string | null;
+    onRowClick?: (row: TData) => void;
   };
  
-  let { data, columns, columnFilters = $bindable([]) }: DataTableProps<TData, TValue> = $props();
+  let { 
+    data, 
+    columns, 
+    columnFilters = $bindable([]),
+    selectedRowId = $bindable(null),
+    onRowClick
+  }: DataTableProps<TData, TValue> = $props();
  
   let sorting = $state<SortingState>([]);
 
@@ -76,7 +84,14 @@
     </Table.Header>
     <Table.Body>
       {#each table.getRowModel().rows as row (row.id)}
-        <Table.Row data-state={row.getIsSelected() && "selected"}>
+        <Table.Row 
+          data-state={(row.id === selectedRowId) && "selected"}
+          class="cursor-pointer transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted data-[state=selected]:font-medium"
+          onclick={() => {
+            selectedRowId = row.id;
+            onRowClick?.(row.original);
+          }}
+        >
           {#each row.getVisibleCells() as cell (cell.id)}
             <Table.Cell>
               <FlexRender
