@@ -156,3 +156,14 @@ export async function getProducts(ProductCategoryId?: number) {
   }
   return await db.select().from(products).all();
 }
+
+export async function getCategories() {
+  return await db.select().from(categories).all();
+}
+
+export async function updateCustomer(id: number, data: Partial<NewCustomer>) {
+  return await db.update(customers)
+    .set(data)
+    .where(eq(customers.id, id))
+    .all();
+}

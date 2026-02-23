@@ -22,6 +22,17 @@ export async function seed(db: any) {
                     });
                 }
             }
+            await db.insert(categories).values({
+                        name: `$PeiP1`,
+                        dept: "PeiP",
+                        year: "PeiP1"
+                    });
+                    
+            await db.insert(categories).values({
+                        name: `$PeiP2`,
+                        dept: "PeiP",
+                        year: "PeiP2"
+                    });
             console.log("Categories seeded OK.");
         }
     } catch (e) {
@@ -53,7 +64,15 @@ export async function seed(db: any) {
                     { firstName: "Tim", lastName: "Berners-Lee", account: 18.0, isKfetier: true },
                     { firstName: "Margaret", lastName: "Hamilton", account: 22.0, isKfetier: false },
                     { firstName: "Elon", lastName: "Musk", account: 100.0, isKfetier: true },
-                    { firstName: "Sophie", lastName: "Germain", account: 7.5, isKfetier: false }
+                    { firstName: "Sophie", lastName: "Germain", account: 7.5, isKfetier: false },
+                    { firstName: "Leonardo", lastName: "da Vinci", account: 35.0, isKfetier: true },
+                    { firstName: "Galileo", lastName: "Galilei", account: 28.0, isKfetier: false },
+                    { firstName: "Marie", lastName: "Curie", account: 25.0, isKfetier: true },
+                    { firstName: "Johannes", lastName: "Kepler", account: 14.0, isKfetier: false },
+                    { firstName: "Carl", lastName: "Sagan", account: 9.0, isKfetier: true },
+                    { firstName: "Jane", lastName: "Goodall", account: 6.0, isKfetier: false },
+                    { firstName: "Richard", lastName: "Feynman", account: 27.0, isKfetier: true },
+                    { firstName: "Dmitri", lastName: "Mendeleev", account: 11.0, isKfetier: false }
                 ];
 
                 for (const cust of sampleCustomers) {
