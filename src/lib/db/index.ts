@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/sqlite-proxy";
 import Database from "@tauri-apps/plugin-sql";
 import { appDataDir, join } from "@tauri-apps/api/path";
-import { customers, categories, productsCategories, products, type NewCustomer } from "./schema";
+import { customers, categories, productsCategories, products, commande, type NewCustomer, type NewCommande } from "./schema";
 import * as schema from "./schema";
 import { eq, sql } from "drizzle-orm";
 import { seed } from "./seed";
@@ -90,6 +90,16 @@ export async function initDb() {
     );
     `);
 
+    await sqlite.execute(`
+    CREATE TABLE IF NOT EXISTS commande (
+      "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+      "customerId" INTEGER REFERENCES customers(id),
+      "productId" INTEGER REFERENCES products(id),
+      "quantity" INTEGER NOT NULL,
+      "totalPrice" REAL NOT NULL
+    );
+    `);
+
     await seed(db);
 }
 
@@ -97,6 +107,7 @@ export async function resetDb() {
   console.log("Resetting database (dropping and creating tables)...");
   try {
     // Drop tables to clear everything (including potential schema mismatches)
+    await sqlite.execute("DROP TABLE IF EXISTS commande;");
     await sqlite.execute("DROP TABLE IF EXISTS products;");
     await sqlite.execute("DROP TABLE IF EXISTS productsCategories;");
     await sqlite.execute("DROP TABLE IF EXISTS customers;");
@@ -159,6 +170,40 @@ export async function getProducts(ProductCategoryId?: number) {
 
 export async function getCategories() {
   return await db.select().from(categories).all();
+}
+
+export async function createProduct(data: NewProduct) {
+  return await db.insert(products).values(data).all();
+}
+
+export async function updateProduct(id: number, data: Partial<NewProduct>) {
+  return await db.update(products)
+    .set(data)
+    .where(eq(products.id, id))
+    .all();
+}
+
+export async function deleteProduct(id: number) {
+  return await db.delete(products).where(eq(products.id, id)).all();
+}
+
+export async function createCommande(data: NewCommande) {
+  // On insère d'abord la commande
+  const result = await db.insert(commande)
+    .values(data)
+    .all();
+
+  // Si on a un customerId et un prix, on met à jour son solde
+  if (data.customerId && data.totalPrice !== undefined) {
+      await db.update(customers)
+        .set({
+          account: sql`${customers.account} - ${data.totalPrice}`
+        })
+        .where(eq(customers.id, data.customerId))
+        .all();
+  }
+
+  return result;
 }
 
 export async function updateCustomer(id: number, data: Partial<NewCustomer>) {

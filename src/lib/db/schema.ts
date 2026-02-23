@@ -35,6 +35,14 @@ export const products = sqliteTable("products", {
     imagePath: text("imagePath")
 });
 
+export const commande = sqliteTable("commande", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customerId").references(() => customers.id),
+    productId: integer("productId").references(() => products.id),
+    quantity: integer("quantity").notNull(),
+    totalPrice: real("totalPrice").notNull()
+});
+
 export type Category = InferSelectModel<typeof categories>;
 export type NewCategory = InferInsertModel<typeof categories>;
 
@@ -51,3 +59,6 @@ export type NewProductCategory = InferInsertModel<typeof productsCategories>;
 
 export type Product = InferSelectModel<typeof products>;
 export type NewProduct = InferInsertModel<typeof products>;
+
+export type Commande = InferSelectModel<typeof commande>;
+export type NewCommande = InferInsertModel<typeof commande>;

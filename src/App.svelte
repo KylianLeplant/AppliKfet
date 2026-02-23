@@ -1,14 +1,17 @@
 <script lang="ts">
     import CustomersPage from '$lib/components/customers/CustomersPage.svelte';
     import { onMount } from "svelte";
-    import { initDb, resetDb, type ProductCategory, type Customer, type Product } from "$lib/db";
+    import { initDb, resetDb, createCommande, type ProductCategory, type Customer, type Product } from "$lib/db";
     import CatalogPage from "$lib/components/shop/CatalogPage.svelte";
     import ProductsPage from "$lib/components/shop/ProductsPage.svelte";
     import ProductQuantityPage from "$lib/components/shop/ProductQuantityPage.svelte";
+    import InventoryPage from "$lib/components/shop/InventoryPage.svelte";
+    import { Toaster } from "$lib/components/ui/sonner/index.js";
+    import { toast } from "svelte-sonner";
     
     const SAVED_VIEW_KEY = "app_current_view";
     
-    let currentView = $state<"home" | "customers" | "catalog" | "products" | "quantity">(
+    let currentView = $state<"home" | "customers" | "catalog" | "products" | "quantity" | "inventory">(
         (sessionStorage.getItem(SAVED_VIEW_KEY) as any) || "home"
     );
     let selectedCategory = $state<ProductCategory | null>(null);
@@ -34,11 +37,26 @@
         currentView = "quantity";
     }
 
-    function handleQuantityConfirm(quantity: number, total: number) {
-        console.log(`Confirmed: ${quantity}x ${selectedProduct?.name} for ${total}€`);
-        alert(`Commande confirmée : ${quantity}x ${selectedProduct?.name} pour ${total.toFixed(2)}€`);
-        // On revient au catalogue pour la suite de la commande, ou n'importe quel autre view.
-        currentView = "catalog"; 
+    async function handleQuantityConfirm(quantity: number, total: number) {
+        if (!selectedProduct) return;
+        
+        try {
+            await createCommande({
+                customerId: selectedCustomerOrder?.id ?? null,
+                productId: selectedProduct.id,
+                quantity: quantity,
+                totalPrice: total
+            });
+            
+            toast.success(`Commande validée`, {
+                description: `${quantity}x ${selectedProduct.name} pour ${selectedCustomerOrder?.firstName} ${selectedCustomerOrder?.lastName} (${total.toFixed(2)} €)`,
+            });
+            
+            currentView = "catalog"; 
+        } catch (error) {
+            console.error("❌ Erreur lors de l'enregistrement de la commande :", error);
+            alert("Erreur lors de l'enregistrement de la commande.");
+        }
     }
 
     onMount(async () => {
@@ -70,13 +88,26 @@
             >
                 Accueil
             </button>
-            
+            <button 
+                onclick={() => currentView = "customers"}
+                class="px-4 py-2 rounded-lg font-bold transition-all {currentView === 'customers' ? 'bg-white text-indigo-600 shadow-md' : 'text-white hover:bg-white/20'}"
+            >
+                Clients
+            </button>
+            <button 
+                onclick={() => currentView = "inventory"}
+                class="px-4 py-2 rounded-lg font-bold transition-all {currentView === 'inventory' ? 'bg-white text-indigo-600 shadow-md' : 'text-white hover:bg-white/20'}"
+            >
+                Stocks
+            </button>
         </div>
         
         <button onclick={handleReset} class="bg-red-500/80 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors">
             Reset DB
         </button>
     </nav>
+
+    <Toaster richColors position="top-right" />
 
     <!-- Contenu de la Page -->
     <div class="w-full max-w-7xl mt-12">
@@ -135,6 +166,10 @@
                         onBack={() => currentView = "products"}
                     />
                 {/if}
+            </div>
+        {:else if currentView === "inventory"}
+            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <InventoryPage />
             </div>
         {/if}
     </div>
