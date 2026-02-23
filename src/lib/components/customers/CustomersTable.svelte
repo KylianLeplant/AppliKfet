@@ -5,7 +5,13 @@
   import { getCustomers, getDepts, getYears, type Customer, initDb } from "$lib/db";
   import type { ColumnFiltersState } from "@tanstack/table-core";
 
-  let { selectedCustomer = $bindable(null) }: { selectedCustomer?: Customer | null } = $props();
+  let { 
+    selectedCustomer = $bindable(null),
+    refreshTrigger = 0 
+  }: { 
+    selectedCustomer?: Customer | null,
+    refreshTrigger?: number 
+  } = $props();
 
   let customers: Customer[] = $state([]);
   let depts: string[] = $state([]);
@@ -19,10 +25,16 @@
     }
   });
 
-  onMount(async () => {
+  async function loadData() {
     customers = await getCustomers();
     depts = await getDepts();
     years = await getYears();
+  }
+
+  // Refresh every time refreshTrigger changes
+  $effect(() => {
+    refreshTrigger;
+    loadData();
   });
 
   function handleFilterChange(columnId: string, value: any) {

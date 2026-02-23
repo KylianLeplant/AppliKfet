@@ -5,9 +5,17 @@
     import CatalogPage from "$lib/components/shop/CatalogPage.svelte";
     import ProductsPage from "$lib/components/shop/ProductsPage.svelte";
     
-    let currentView = $state<"home" | "customers" | "catalog" | "products">("home");
+    const SAVED_VIEW_KEY = "app_current_view";
+    
+    let currentView = $state<"home" | "customers" | "catalog" | "products">(
+        (sessionStorage.getItem(SAVED_VIEW_KEY) as any) || "home"
+    );
     let selectedCategory = $state<ProductCategory | null>(null);
     let selectedCustomerOrder = $state<Customer | null>(null);
+
+    $effect(() => {
+        sessionStorage.setItem(SAVED_VIEW_KEY, currentView);
+    });
 
     function handleStartOrder(customer: Customer) {
         selectedCustomerOrder = customer;
@@ -29,6 +37,7 @@
 
     async function handleReset() {
         if (confirm("Reset database?")) {
+            sessionStorage.removeItem(SAVED_VIEW_KEY);
             await resetDb();
             location.reload();
         }

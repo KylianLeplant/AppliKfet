@@ -9,6 +9,7 @@
   let selectedCustomer = $state<Customer | null>(null);
   let isEditing = $state(false);
   let allCategories = $state<Category[]>([]);
+  let refreshCount = $state(0);
   
   // Form state
   let editFirstName = $state("");
@@ -67,9 +68,20 @@
             isKfetier: editIsKfetier,
             categoryId: category.id
         });
+        
+        // Update local object properties if they are reactive (it should be)
+        if (selectedCustomer) {
+            selectedCustomer.firstName = editFirstName;
+            selectedCustomer.lastName = editLastName;
+            selectedCustomer.isKfetier = editIsKfetier;
+            selectedCustomer.dept = category.dept;
+            selectedCustomer.year = category.year;
+            selectedCustomer.categoryName = category.name;
+        }
+
         isEditing = false;
-        // Refresh by reloading for now (simplest way to update everything)
-        location.reload();
+        refreshCount++;
+        // location.reload(); no longer needed
     } catch (e) {
         console.error("Error updating customer:", e);
     }
@@ -138,8 +150,9 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Dept.</label>
+                            <label for="edit-dept" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Dept.</label>
                             <select 
+                                id="edit-dept"
                                 bind:value={editDept}
                                 class="w-full h-10 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus:ring-1 focus:ring-indigo-500"
                             >
@@ -150,8 +163,9 @@
                             </select>
                         </div>
                         <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Année</label>
+                            <label for="edit-year" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Année</label>
                             <select 
+                                id="edit-year"
                                 bind:value={editYear}
                                 class="w-full h-10 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus:ring-1 focus:ring-indigo-500"
                             >
@@ -185,6 +199,6 @@
     </div>
 
     <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-        <CustomersTable bind:selectedCustomer />
+        <CustomersTable bind:selectedCustomer refreshTrigger={refreshCount} />
     </div>
 </div>

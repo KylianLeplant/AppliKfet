@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/sqlite-proxy";
 import Database from "@tauri-apps/plugin-sql";
 import { appDataDir, join } from "@tauri-apps/api/path";
-import { customers, categories, productsCategories, products } from "./schema";
+import { customers, categories, productsCategories, products, type NewCustomer } from "./schema";
 import * as schema from "./schema";
 import { eq, sql } from "drizzle-orm";
 import { seed } from "./seed";
