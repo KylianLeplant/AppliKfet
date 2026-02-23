@@ -79,7 +79,7 @@ export async function seed(db: any) {
             console.log("Seeding sample product categories...");
             const sampleProductCategories = [
                 { name: "Boissons", imagePath: "static/products_categories/boissons.png" },
-                { name: "Snacks", imagePath: "static/products_categories/snacks.ebp" },
+                { name: "Snacks", imagePath: "static/products_categories/snacks.webp" },
                 { name: "Midi", imagePath: "static/products_categories/pizza.webp" },
                 { name: "St-Michel", imagePath: "static/products_categories/st_michel.png" },
                 { name: "suppléments", imagePath: null }

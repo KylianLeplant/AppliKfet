@@ -1,9 +1,17 @@
 <script lang="ts">
     import CustomersPage from '$lib/components/customers/CustomersPage.svelte';
     import { onMount } from "svelte";
-    import { initDb, resetDb } from "$lib/db";
+    import { initDb, resetDb, type ProductCategory } from "$lib/db";
+    import CatalogPage from "$lib/components/shop/CatalogPage.svelte";
+    import ProductsPage from "$lib/components/shop/ProductsPage.svelte";
     
-    let currentView = $state<"home" | "customers">("home");
+    let currentView = $state<"home" | "customers" | "catalog" | "products">("home");
+    let selectedCategory = $state<ProductCategory | null>(null);
+
+    function navigateToProducts(category: ProductCategory) {
+        selectedCategory = category;
+        currentView = "products";
+    }
 
     onMount(async () => {
         try {
@@ -39,6 +47,12 @@
             >
                 Liste Clients
             </button>
+            <button 
+                onclick={() => currentView = "catalog"}
+                class="px-4 py-2 rounded-lg font-bold transition-all {currentView === 'catalog' ? 'bg-white text-indigo-600 shadow-md' : 'text-white hover:bg-white/20'}"
+            >
+                Catalogue
+            </button>
         </div>
         
         <button onclick={handleReset} class="bg-red-500/80 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors">
@@ -62,6 +76,22 @@
         {:else if currentView === "customers"}
             <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <CustomersPage />
+            </div>
+        {:else if currentView === "catalog"}
+            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <CatalogPage onCategorySelect={navigateToProducts} />
+            </div>
+        {:else if currentView === "products"}
+            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <button 
+                  onclick={() => currentView = "catalog"}
+                  class="mb-4 text-white/80 hover:text-white flex items-center gap-2 font-bold"
+                >
+                  ← Retour au catalogue
+                </button>
+                {#if selectedCategory}
+                  <ProductsPage productCategory={selectedCategory} />
+                {/if}
             </div>
         {/if}
     </div>

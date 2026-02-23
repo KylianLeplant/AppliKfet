@@ -20,7 +20,6 @@
   });
 
   onMount(async () => {
-    await initDb();
     customers = await getCustomers();
     depts = await getDepts();
     years = await getYears();

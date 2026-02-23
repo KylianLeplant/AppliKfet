@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/sqlite-proxy";
 import Database from "@tauri-apps/plugin-sql";
 import { appDataDir, join } from "@tauri-apps/api/path";
-import { customers, categories } from "./schema";
+import { customers, categories, productsCategories, products } from "./schema";
 import * as schema from "./schema";
 import { eq, sql } from "drizzle-orm";
 import { seed } from "./seed";
@@ -144,4 +144,15 @@ export async function getYears() {
     .all();
   // On retourne une liste unique d'années
   return Array.from(new Set(result.map(r => r.year))).filter(Boolean).sort();
+}
+
+export async function getProductsCategories() {
+  return await db.select().from(productsCategories).all();
+}
+
+export async function getProducts(ProductCategoryId?: number) {
+  if (ProductCategoryId !== undefined) {
+    return await db.select().from(products).where(eq(products.categoryId, ProductCategoryId)).all();
+  }
+  return await db.select().from(products).all();
 }
