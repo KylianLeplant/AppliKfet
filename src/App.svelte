@@ -1,17 +1,19 @@
 <script lang="ts">
     import CustomersPage from '$lib/components/customers/CustomersPage.svelte';
     import { onMount } from "svelte";
-    import { initDb, resetDb, type ProductCategory, type Customer } from "$lib/db";
+    import { initDb, resetDb, type ProductCategory, type Customer, type Product } from "$lib/db";
     import CatalogPage from "$lib/components/shop/CatalogPage.svelte";
     import ProductsPage from "$lib/components/shop/ProductsPage.svelte";
+    import ProductQuantityPage from "$lib/components/shop/ProductQuantityPage.svelte";
     
     const SAVED_VIEW_KEY = "app_current_view";
     
-    let currentView = $state<"home" | "customers" | "catalog" | "products">(
+    let currentView = $state<"home" | "customers" | "catalog" | "products" | "quantity">(
         (sessionStorage.getItem(SAVED_VIEW_KEY) as any) || "home"
     );
     let selectedCategory = $state<ProductCategory | null>(null);
     let selectedCustomerOrder = $state<Customer | null>(null);
+    let selectedProduct = $state<Product | null>(null);
 
     $effect(() => {
         sessionStorage.setItem(SAVED_VIEW_KEY, currentView);
@@ -25,6 +27,18 @@
     function navigateToProducts(category: ProductCategory) {
         selectedCategory = category;
         currentView = "products";
+    }
+
+    function selectProduct(product: Product) {
+        selectedProduct = product;
+        currentView = "quantity";
+    }
+
+    function handleQuantityConfirm(quantity: number, total: number) {
+        console.log(`Confirmed: ${quantity}x ${selectedProduct?.name} for ${total}€`);
+        alert(`Commande confirmée : ${quantity}x ${selectedProduct?.name} pour ${total.toFixed(2)}€`);
+        // On revient au catalogue pour la suite de la commande, ou n'importe quel autre view.
+        currentView = "catalog"; 
     }
 
     onMount(async () => {
@@ -107,7 +121,19 @@
                   <ProductsPage 
                     productCategory={selectedCategory} 
                     customer={selectedCustomerOrder} 
+                    onProductSelect={selectProduct}
                   />
+                {/if}
+            </div>
+        {:else if currentView === "quantity"}
+            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500 flex justify-center">
+                {#if selectedProduct}
+                    <ProductQuantityPage 
+                        product={selectedProduct} 
+                        customer={selectedCustomerOrder}
+                        onConfirm={handleQuantityConfirm}
+                        onBack={() => currentView = "products"}
+                    />
                 {/if}
             </div>
         {/if}

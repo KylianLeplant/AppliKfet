@@ -194,7 +194,14 @@
                 </div>
             </div>
             <!-- Overlay -->
-            <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity" onclick={() => isEditing = false}></div>
+            <div 
+                class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity" 
+                onclick={() => isEditing = false}
+                onkeydown={(e) => e.key === 'Escape' && (isEditing = false)}
+                role="button"
+                tabindex="0"
+                aria-label="Fermer le formulaire"
+            ></div>
         {/if}
     </div>
 

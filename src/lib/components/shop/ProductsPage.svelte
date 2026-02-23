@@ -3,7 +3,15 @@
     import { getProducts, type Product, type ProductCategory, type Customer } from "$lib/db";
     import ItemCard from "../itemCard/ItemCard.svelte";
 
-    let { productCategory, customer }: { productCategory: ProductCategory, customer: Customer | null } = $props();
+    let { 
+        productCategory, 
+        customer, 
+        onProductSelect 
+    }: { 
+        productCategory: ProductCategory, 
+        customer: Customer | null,
+        onProductSelect: (product: Product) => void
+    } = $props();
 
     let productsResult = $state<Product[]>([]);
 
@@ -39,9 +47,7 @@
                 name={product.name} 
                 subtitle={getPrice(product)}
                 imagePath={product.imagePath} 
-                onclick={() => {
-                    console.log("Ordered product:", product.name, "for", customer?.firstName);
-                }} 
+                onclick={() => onProductSelect(product)} 
             />
         {/each}
     </div>
