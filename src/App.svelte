@@ -100,7 +100,7 @@
                 onclick={() => currentView = "customers_categories"}
                 class="px-4 py-2 rounded-lg font-bold transition-all {currentView === 'customers_categories' ? 'bg-white text-indigo-600 shadow-md' : 'text-white hover:bg-white/20'}"
             >
-                Promotions
+                Classes
             </button>
             <button 
                 onclick={() => currentView = "management"}
