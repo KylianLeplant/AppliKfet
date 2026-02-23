@@ -161,6 +161,21 @@ export async function getProductsCategories() {
   return await db.select().from(productsCategories).all();
 }
 
+export async function createProductCategory(data: NewProductCategory) {
+  return await db.insert(productsCategories).values(data).all();
+}
+
+export async function updateProductCategory(id: number, data: Partial<NewProductCategory>) {
+  return await db.update(productsCategories)
+    .set(data)
+    .where(eq(productsCategories.id, id))
+    .all();
+}
+
+export async function deleteProductCategory(id: number) {
+  return await db.delete(productsCategories).where(eq(productsCategories.id, id)).all();
+}
+
 export async function getProducts(ProductCategoryId?: number) {
   if (ProductCategoryId !== undefined) {
     return await db.select().from(products).where(eq(products.categoryId, ProductCategoryId)).all();

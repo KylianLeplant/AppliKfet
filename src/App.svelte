@@ -5,13 +5,14 @@
     import CatalogPage from "$lib/components/shop/CatalogPage.svelte";
     import ProductsPage from "$lib/components/shop/ProductsPage.svelte";
     import ProductQuantityPage from "$lib/components/shop/ProductQuantityPage.svelte";
-    import InventoryPage from "$lib/components/shop/InventoryPage.svelte";
+    import ProductsManagementPage from "$lib/components/shop/ProductsManagementPage.svelte";
+    import CategoriesManagementPage from "$lib/components/shop/CategoriesManagementPage.svelte";
     import { Toaster } from "$lib/components/ui/sonner/index.js";
     import { toast } from "svelte-sonner";
     
     const SAVED_VIEW_KEY = "app_current_view";
     
-    let currentView = $state<"home" | "customers" | "catalog" | "products" | "quantity" | "inventory">(
+    let currentView = $state<"home" | "customers" | "catalog" | "products" | "quantity" | "management" | "categories_mgmt">(
         (sessionStorage.getItem(SAVED_VIEW_KEY) as any) || "home"
     );
     let selectedCategory = $state<ProductCategory | null>(null);
@@ -95,10 +96,16 @@
                 Clients
             </button>
             <button 
-                onclick={() => currentView = "inventory"}
-                class="px-4 py-2 rounded-lg font-bold transition-all {currentView === 'inventory' ? 'bg-white text-indigo-600 shadow-md' : 'text-white hover:bg-white/20'}"
+                onclick={() => currentView = "management"}
+                class="px-4 py-2 rounded-lg font-bold transition-all {currentView === 'management' ? 'bg-white text-indigo-600 shadow-md' : 'text-white hover:bg-white/20'}"
             >
-                Stocks
+                Produits
+            </button>
+            <button 
+                onclick={() => currentView = "categories_mgmt"}
+                class="px-4 py-2 rounded-lg font-bold transition-all {currentView === 'categories_mgmt' ? 'bg-white text-indigo-600 shadow-md' : 'text-white hover:bg-white/20'}"
+            >
+                Catégories
             </button>
         </div>
         
@@ -167,9 +174,13 @@
                     />
                 {/if}
             </div>
-        {:else if currentView === "inventory"}
+        {:else if currentView === "management"}
             <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <InventoryPage />
+                <ProductsManagementPage />
+            </div>
+        {:else if currentView === "categories_mgmt"}
+            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <CategoriesManagementPage />
             </div>
         {/if}
     </div>
