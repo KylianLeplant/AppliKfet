@@ -190,12 +190,12 @@
                         <!-- Infos Générales -->
                         <div class="space-y-4">
                             <div class="space-y-1">
-                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nom du Produit</label>
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nom du Produit</span>
                                 <Input bind:value={currentProduct.name} class="font-bold h-12" placeholder="Cola, Kinder, etc." />
                             </div>
 
                             <div class="space-y-1">
-                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Catégorie</label>
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Catégorie</span>
                                 <select 
                                     bind:value={currentProduct.categoryId}
                                     class="w-full h-12 rounded-lg border border-gray-200 px-3 font-bold bg-white focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -207,11 +207,13 @@
                             </div>
 
                             <div class="space-y-1">
-                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Chemin Image</label>
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Chemin Image</span>
                                 <div 
                                     class="border-2 border-dashed border-gray-200 rounded-xl p-4 transition-colors hover:bg-gray-50 text-center cursor-pointer"
                                     ondragover={(e) => e.preventDefault()}
                                     ondrop={handleDrop}
+                                    role="region"
+                                    aria-label="Zone de dépôt d'image"
                                 >
                                     {#if currentProduct.imagePath}
                                         <div class="flex items-center gap-2 mb-2">
@@ -234,11 +236,11 @@
                                 </h4>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="space-y-1">
-                                        <label class="text-[8px] font-bold text-gray-400 uppercase">Prix Unitaire (€)</label>
+                                        <span class="text-[8px] font-bold text-gray-400 uppercase">Prix Unitaire (€)</span>
                                         <Input type="number" step="0.01" bind:value={currentProduct.price} class="font-bold h-10" />
                                     </div>
                                     <div class="space-y-1">
-                                        <label class="text-[8px] font-bold text-gray-400 uppercase">Prix Lot de 3 (€)</label>
+                                        <span class="text-[8px] font-bold text-gray-400 uppercase">Prix Lot de 3 (€)</span>
                                         <Input type="number" step="0.01" bind:value={currentProduct.priceForThree} class="font-bold h-10" />
                                     </div>
                                 </div>
@@ -250,11 +252,11 @@
                                 </h4>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="space-y-1">
-                                        <label class="text-[8px] font-bold text-gray-400 uppercase">Prix Unitaire (€)</label>
+                                        <span class="text-[8px] font-bold text-gray-400 uppercase">Prix Unitaire (€)</span>
                                         <Input type="number" step="0.01" bind:value={currentProduct.priceForKfetier} class="font-bold h-10" />
                                     </div>
                                     <div class="space-y-1">
-                                        <label class="text-[8px] font-bold text-gray-400 uppercase">Prix Lot de 3 (€)</label>
+                                        <span class="text-[8px] font-bold text-gray-400 uppercase">Prix Lot de 3 (€)</span>
                                         <Input type="number" step="0.01" bind:value={currentProduct.priceForThreeKfetier} class="font-bold h-10" />
                                     </div>
                                 </div>

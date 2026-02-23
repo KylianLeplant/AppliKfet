@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/sqlite-proxy";
 import Database from "@tauri-apps/plugin-sql";
 import { appDataDir, join } from "@tauri-apps/api/path";
-import { customers, categories, productsCategories, products, commande, type NewCustomer, type NewCommande } from "./schema";
+import { customers, categories, productsCategories, products, commande, type NewCustomer, type NewCommande, type NewProduct, type NewProductCategory, type NewCategory } from "./schema";
 import * as schema from "./schema";
 import { eq, sql } from "drizzle-orm";
 import { seed } from "./seed";
@@ -185,6 +185,21 @@ export async function getProducts(ProductCategoryId?: number) {
 
 export async function getCategories() {
   return await db.select().from(categories).all();
+}
+
+export async function createCategory(data: NewCategory) {
+  return await db.insert(categories).values(data).all();
+}
+
+export async function updateCategory(id: number, data: Partial<NewCategory>) {
+  return await db.update(categories)
+    .set(data)
+    .where(eq(categories.id, id))
+    .all();
+}
+
+export async function deleteCategory(id: number) {
+  return await db.delete(categories).where(eq(categories.id, id)).all();
 }
 
 export async function createProduct(data: NewProduct) {

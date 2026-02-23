@@ -7,12 +7,13 @@
     import ProductQuantityPage from "$lib/components/shop/ProductQuantityPage.svelte";
     import ProductsManagementPage from "$lib/components/shop/ProductsManagementPage.svelte";
     import CategoriesManagementPage from "$lib/components/shop/CategoriesManagementPage.svelte";
+    import CustomerCategoriesPage from "$lib/components/customers/CustomerCategoriesPage.svelte";
     import { Toaster } from "$lib/components/ui/sonner/index.js";
     import { toast } from "svelte-sonner";
     
     const SAVED_VIEW_KEY = "app_current_view";
     
-    let currentView = $state<"home" | "customers" | "catalog" | "products" | "quantity" | "management" | "categories_mgmt">(
+    let currentView = $state<"home" | "customers" | "catalog" | "products" | "quantity" | "management" | "categories_mgmt" | "customers_categories">(
         (sessionStorage.getItem(SAVED_VIEW_KEY) as any) || "home"
     );
     let selectedCategory = $state<ProductCategory | null>(null);
@@ -94,6 +95,12 @@
                 class="px-4 py-2 rounded-lg font-bold transition-all {currentView === 'customers' ? 'bg-white text-indigo-600 shadow-md' : 'text-white hover:bg-white/20'}"
             >
                 Clients
+            </button>
+            <button 
+                onclick={() => currentView = "customers_categories"}
+                class="px-4 py-2 rounded-lg font-bold transition-all {currentView === 'customers_categories' ? 'bg-white text-indigo-600 shadow-md' : 'text-white hover:bg-white/20'}"
+            >
+                Promotions
             </button>
             <button 
                 onclick={() => currentView = "management"}
@@ -181,6 +188,10 @@
         {:else if currentView === "categories_mgmt"}
             <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <CategoriesManagementPage />
+            </div>
+        {:else if currentView === "customers_categories"}
+            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <CustomerCategoriesPage />
             </div>
         {/if}
     </div>

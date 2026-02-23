@@ -10,7 +10,7 @@ export async function seed(db: any) {
         
         if (existingCats.length === 0) {
             console.log("Seeding base categories...");
-            const depts = ["DI", "DA", "DEE", "DMS"];
+            const depts = ["DI", "DA", "DEE", "DMS", "ISIE", "MMA"];
             const years = ["3A", "4A", "5A"];
             
             for (const dept of depts) {
@@ -23,15 +23,25 @@ export async function seed(db: any) {
                 }
             }
             await db.insert(categories).values({
-                        name: `$PeiP1`,
+                        name: `PeiP1`,
                         dept: "PeiP",
                         year: "PeiP1"
                     });
                     
             await db.insert(categories).values({
-                        name: `$PeiP2`,
+                        name: `PeiP2`,
                         dept: "PeiP",
                         year: "PeiP2"
+                    });
+            await db.insert(categories).values({
+                        name: `Prof`,
+                        dept: "Prof",
+                        year: "prof"
+                    });
+            await db.insert(categories).values({
+                        name: `Autre`,
+                        dept: "Autre",
+                        year: "Autre"
                     });
             console.log("Categories seeded OK.");
         }

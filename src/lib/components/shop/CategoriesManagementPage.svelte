@@ -145,16 +145,18 @@
 
                     <div class="space-y-4">
                         <div class="space-y-1">
-                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nom de la catégorie</label>
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nom de la catégorie</span>
                             <Input bind:value={currentCategory.name} class="font-bold h-12" placeholder="Boissons, Snacks, etc." />
                         </div>
 
                         <div class="space-y-1">
-                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Image de couverture</label>
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Image de couverture</span>
                             <div 
                                 class="border-2 border-dashed border-gray-200 rounded-xl p-6 transition-colors hover:bg-gray-50 text-center cursor-pointer"
                                 ondragover={(e) => e.preventDefault()}
                                 ondrop={handleDrop}
+                                role="region"
+                                aria-label="Zone de dépôt d'image"
                             >
                                 {#if currentCategory.imagePath}
                                     <div class="flex flex-col items-center gap-2 mb-2">
