@@ -242,3 +242,12 @@ export async function updateCustomer(id: number, data: Partial<NewCustomer>) {
     .where(eq(customers.id, id))
     .all();
 }
+
+export async function addMoneyToCustomer(id: number, amount: number) {
+  return await db.update(customers)
+    .set({
+      account: sql`${customers.account} + ${amount}`
+    })
+    .where(eq(customers.id, id))
+    .all();
+}

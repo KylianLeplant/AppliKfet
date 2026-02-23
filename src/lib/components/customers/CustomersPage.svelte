@@ -1,13 +1,17 @@
 <script lang="ts">
   import CustomersTable from './CustomersTable.svelte';
-  import { type Customer, type Category, getCategories, updateCustomer } from "$lib/db";
+  import { type Customer, type Category, getCategories, updateCustomer, addMoneyToCustomer } from "$lib/db";
   import { onMount } from 'svelte';
   import Button from '../ui/button/button.svelte';
   import { Input } from '../ui/input';
+  import * as Card from "../ui/card/index.js";
+  import { toast } from "svelte-sonner";
 
   let { onStartOrder }: { onStartOrder: (customer: Customer) => void } = $props();
   let selectedCustomer = $state<Customer | null>(null);
   let isEditing = $state(false);
+  let isAddingMoney = $state(false);
+  let amountToAdd = $state(0);
   let allCategories = $state<Category[]>([]);
   let refreshCount = $state(0);
   
@@ -86,6 +90,25 @@
         console.error("Error updating customer:", e);
     }
   }
+
+  async function handleAddMoney() {
+    if (!selectedCustomer || amountToAdd <= 0) return;
+    try {
+        await addMoneyToCustomer(selectedCustomer.id, amountToAdd);
+        if (selectedCustomer.account !== null) {
+            selectedCustomer.account += amountToAdd;
+        }
+        toast.success(`Solde mis à jour`, {
+            description: `${amountToAdd}€ ajoutés au compte de ${selectedCustomer.firstName}`
+        });
+        isAddingMoney = false;
+        amountToAdd = 0;
+        refreshCount++;
+    } catch (e) {
+        console.error("Error adding money:", e);
+        toast.error("Erreur lors de l'ajout d'argent");
+    }
+  }
 </script>
 
 <div class="flex flex-col gap-6 w-full max-w-6xl">
@@ -115,10 +138,74 @@
                     >
                         ✎ Modifier le client
                     </button>
+                    <button 
+                        onclick={() => isAddingMoney = true}
+                        class="bg-emerald-600/50 hover:bg-emerald-600/80 text-white font-bold py-3 px-6 rounded-xl shadow-lg border border-emerald-200/20 backdrop-blur-sm transition-all animate-in fade-in zoom-in-95"
+                    >
+                        💰 Ajouter de l'argent
+                    </button>
                 {/if}
             </div>
         </div>
         
+        {#if isAddingMoney}
+            <!-- Card Shadcn pour l'ajout d'argent -->
+            <div class="fixed inset-0 flex items-center justify-center z-50 p-4">
+                <div 
+                    class="bg-black/60 absolute inset-0 backdrop-blur-sm" 
+                    onclick={() => isAddingMoney = false}
+                    onkeydown={(e) => e.key === 'Escape' && (isAddingMoney = false)}
+                    role="button"
+                    tabindex="0"
+                    aria-label="Fermer la modal"
+                ></div>
+                <Card.Root class="w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in-95 duration-300 rounded-2xl overflow-hidden border-indigo-100">
+                    <Card.Header class="text-black">
+                        <Card.Title class="text-2xl font-black uppercase tracking-tighter">Ajouter du Solde</Card.Title>
+                        <Card.Description class="text-indigo-100 font-bold">
+                            Client : {selectedCustomer?.firstName} {selectedCustomer?.lastName}
+                        </Card.Description>
+                    </Card.Header>
+                    <Card.Content class="space-y-6">
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <span class="text-xs font-black text-gray-400 uppercase tracking-widest">Solde actuel</span>
+                                <span class="text-2xl font-black text-gray-800">{selectedCustomer?.account?.toFixed(2)} €</span>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label for="amount" class="text-xs font-black text-gray-400 uppercase tracking-widest block">Montant à ajouter (€)</label>
+                                <Input 
+                                    id="amount" 
+                                    type="number" 
+                                    bind:value={amountToAdd} 
+                                    placeholder="Ex: 5.00" 
+                                    class="text-xl font-bold h-14 bg-indigo-50/30 border-indigo-100 focus:ring-emerald-500" 
+                                    min="0.01" 
+                                    step="0.01"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button 
+                                onclick={() => isAddingMoney = false}
+                                class="flex-1 py-3 px-4 border border-gray-200 rounded-xl font-bold text-gray-500 hover:bg-gray-50 transition-all uppercase tracking-widest text-[10px]"
+                            >
+                                Annuler
+                            </button>
+                            <button 
+                                onclick={handleAddMoney}
+                                class="flex-1 py-3 px-4 bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95 uppercase tracking-widest text-[10px]"
+                            >
+                                Confirmer (+{amountToAdd}€)
+                            </button>
+                        </div>
+                    </Card.Content>
+                </Card.Root>
+            </div>
+        {/if}
+
         {#if isEditing}
             <div class="bg-white p-6 rounded-2xl shadow-2xl border border-indigo-200 w-full max-w-md animate-in slide-in-from-right-8 duration-300 z-50 fixed right-8 top-24">
                 <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
