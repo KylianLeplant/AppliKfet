@@ -21,7 +21,7 @@
         let packP = customer?.isKfetier ? product.priceForThreeKfetier : product.priceForThree;
 
         // If no specifically defined 3-pack price, use 3 * unit price
-        if (packP === null || packP === undefined) {
+        if (packP === null || packP === undefined || packP === 0) {
             packP = unitP * 3;
         }
 
@@ -51,7 +51,7 @@
                 <h1 class="text-4xl font-black text-white uppercase tracking-tighter">{product.name}</h1>
                 <p class="text-indigo-300 font-bold">
                     Tarif {customer?.isKfetier ? 'Kfetier' : 'Standard'} : {unitPriceLabel.toFixed(2)} €
-                    {#if packPriceLabel}
+                    {#if packPriceLabel && packPriceLabel !== 0}
                         <span class="ml-2 text-white/60">({packPriceLabel.toFixed(2)} € les 3)</span>
                     {/if}
                 </p>
@@ -91,7 +91,7 @@
                 >
                     1
                 </Button>
-                {#if packPriceLabel !== null}
+                {#if packPriceLabel !== null && packPriceLabel !== 0}
                     <Button 
                         variant="ghost"
                         onclick={() => quantityArr = [3]}
@@ -108,7 +108,7 @@
                     <p class="text-3xl font-black text-gray-800 tabular-nums">{totalPrice.toFixed(2)} €</p>
                 </div>
                 
-                {#if Math.floor(quantity / 3) > 0 && packPriceLabel}
+                {#if Math.floor(quantity / 3) > 0 && packPriceLabel && packPriceLabel !== 0}
                     <div class="text-right">
                         <span class="bg-green-100 text-green-700 text-[10px] font-black px-2 py-1 rounded uppercase">
                             Lot de 3 appliqué
