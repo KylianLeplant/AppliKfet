@@ -181,7 +181,7 @@
                     <div class="space-y-1">
                         <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Image de couverture</span>
                         
-                        <FileDropZone.Root onUpload={handleUpload} accept="image/*" maxFiles={1} containerClass="w-full">
+                        <FileDropZone.Root onUpload={handleUpload} accept="image/*" maxFiles={1}>
                             <FileDropZone.Trigger>
                                 <div 
                                     class="border-2 border-dashed border-gray-200 rounded-xl p-6 transition-colors hover:bg-gray-50 text-center cursor-pointer w-full"

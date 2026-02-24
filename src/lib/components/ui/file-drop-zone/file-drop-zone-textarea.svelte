@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { HTMLAttributes } from 'svelte/elements';
-	import { useFileDropZoneTextarea } from './file-drop-zone.svelte.js';
+	import { useFileDropZoneTextarea } from './file-drop-zone-state.svelte.js';
 	import { box, mergeProps } from 'svelte-toolbelt';
 	import type { WithChild } from 'bits-ui';
 
