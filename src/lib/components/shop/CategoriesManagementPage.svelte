@@ -8,6 +8,8 @@
         type ProductCategory,
         type NewProductCategory
     } from "$lib/db";
+    import * as FileDropZone from "$lib/components/ui/file-drop-zone/index.js";
+    import { invoke } from "@tauri-apps/api/core";
     import { Input } from "$lib/components/ui/input/index.js";
     import { Button } from "$lib/components/ui/button/index.js";
     import * as Dialog from "$lib/components/ui/dialog/index.js";
@@ -76,12 +78,25 @@
         }
     }
 
-    function handleDrop(e: DragEvent) {
-        e.preventDefault();
-        const files = e.dataTransfer?.files;
-        if (files && files.length > 0) {
-            toast.info("Image déposée : " + files[0].name);
-            currentCategory.imagePath = `static/products_categories/${files[0].name}`;
+    async function handleUpload(files: File[]) {
+        if (files.length === 0) return;
+        const file = files[0];
+        
+        try {
+            const buffer = await file.arrayBuffer();
+             const bytes = new Uint8Array(buffer);
+            
+            const path = await invoke<string>("save_image", {
+                folder: "products_categories",
+                filename: file.name,
+                content: Array.from(bytes) // Tauri v2 handles Vec<u8> from number[]
+            });
+            
+            currentCategory.imagePath = path;
+            toast.success("Image téléchargée : " + file.name);
+        } catch (e) {
+            console.error(e);
+            toast.error("Erreur : " + e);
         }
     }
 </script>
@@ -165,26 +180,28 @@
 
                     <div class="space-y-1">
                         <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Image de couverture</span>
-                        <div 
-                            class="border-2 border-dashed border-gray-200 rounded-xl p-6 transition-colors hover:bg-gray-50 text-center cursor-pointer"
-                            ondragover={(e) => e.preventDefault()}
-                            ondrop={handleDrop}
-                            role="region"
-                            aria-label="Zone de dépôt d'image"
-                        >
-                            {#if currentCategory.imagePath}
-                                <div class="flex flex-col items-center gap-2 mb-2">
-                                    <img src={currentCategory.imagePath} alt="Aperçu" class="w-24 h-24 object-cover rounded-xl shadow-lg" />
-                                    <span class="text-[10px] font-mono text-gray-500 break-all">{currentCategory.imagePath}</span>
+                        
+                        <FileDropZone.Root onUpload={handleUpload} accept="image/*" maxFiles={1} containerClass="w-full">
+                            <FileDropZone.Trigger>
+                                <div 
+                                    class="border-2 border-dashed border-gray-200 rounded-xl p-6 transition-colors hover:bg-gray-50 text-center cursor-pointer w-full"
+                                >
+                                    {#if currentCategory.imagePath}
+                                        <div class="flex flex-col items-center gap-2 mb-2">
+                                            <img src={currentCategory.imagePath} alt="Aperçu" class="w-24 h-24 object-cover rounded-xl shadow-lg" />
+                                            <span class="text-[10px] font-mono text-gray-500 break-all max-w-[200px]">{currentCategory.imagePath}</span>
+                                        </div>
+                                    {:else}
+                                        <div class="py-4">
+                                            <p class="text-xs text-gray-400 uppercase font-black">Glissez une image ici</p>
+                                            <p class="text-[8px] text-gray-300">ou cliquez pour sélectionner</p>
+                                        </div>
+                                    {/if}
                                 </div>
-                            {:else}
-                                <div class="py-4">
-                                    <p class="text-xs text-gray-400 uppercase font-black">Glissez une image ici</p>
-                                    <p class="text-[8px] text-gray-300">ou entrez le chemin manuellement</p>
-                                </div>
-                            {/if}
-                            <Input bind:value={currentCategory.imagePath} class="h-8 font-mono text-[10px]" placeholder="Ex: static/products_categories/boisson.png" />
-                        </div>
+                            </FileDropZone.Trigger>
+                        </FileDropZone.Root>
+                        
+                        <Input bind:value={currentCategory.imagePath} class="h-8 font-mono text-[10px] mt-2" placeholder="Ex: static/products_categories/boisson.png" />
                     </div>
                 </div>
 

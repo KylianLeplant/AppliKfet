@@ -10,6 +10,8 @@
         type ProductCategory,
         type NewProduct
     } from "$lib/db";
+    import { invoke } from "@tauri-apps/api/core";
+    import * as FileDropZone from "$lib/components/ui/file-drop-zone/index.js";
     import * as Card from "$lib/components/ui/card/index.js";
     import { Input } from "$lib/components/ui/input/index.js";
     import { Button } from "$lib/components/ui/button/index.js";
@@ -102,17 +104,25 @@
         }
     }
 
-    // Simple Drop Zone handlers for image path (UI only simulation for now)
-    function handleDrop(e: DragEvent) {
-        e.preventDefault();
-        const files = e.dataTransfer?.files;
-        if (files && files.length > 0) {
-            // Note: In a browser, we can't get the full system path for security reasons.
-            // In Tauri, there are ways to get it, but for now we'll simulate setting a relative path if possible
-            // Or just warn the user.
-            toast.info("Image déposée : " + files[0].name + " (Vérifiez le chemin relatif)");
-            // We set the path relative to static/ for testing
-            currentProduct.imagePath = `static/products_categories/${files[0].name}`;
+    async function handleUpload(files: File[]) {
+        if (files.length === 0) return;
+        const file = files[0];
+        
+        try {
+            const buffer = await file.arrayBuffer();
+             const bytes = new Uint8Array(buffer);
+            
+            const path = await invoke<string>("save_image", {
+                folder: "products",
+                filename: file.name,
+                content: Array.from(bytes) // Tauri v2 handles Vec<u8> from number[]
+            });
+            
+            currentProduct.imagePath = path;
+            toast.success("Image téléchargée : " + file.name);
+        } catch (e) {
+            console.error(e);
+            toast.error("Erreur : " + e);
         }
     }
 </script>
@@ -232,23 +242,25 @@
 
                         <div class="space-y-1">
                             <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Chemin Image</span>
-                            <div 
-                                class="border-2 border-dashed border-gray-200 rounded-xl p-4 transition-colors hover:bg-gray-50 text-center cursor-pointer"
-                                ondragover={(e) => e.preventDefault()}
-                                ondrop={handleDrop}
-                                role="region"
-                                aria-label="Zone de dépôt d'image"
-                            >
-                                {#if currentProduct.imagePath}
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <img src={currentProduct.imagePath} alt="Aperçu" class="w-10 h-10 object-cover rounded shadow" />
-                                        <span class="text-xs truncate font-mono text-gray-500">{currentProduct.imagePath}</span>
+                            
+                            <FileDropZone.Root onUpload={handleUpload} accept="image/*" maxFiles={1} containerClass="w-full">
+                                <FileDropZone.Trigger>
+                                    <div 
+                                        class="border-2 border-dashed border-gray-200 rounded-xl p-4 transition-colors hover:bg-gray-50 text-center cursor-pointer w-full"
+                                    >
+                                        {#if currentProduct.imagePath}
+                                            <div class="flex items-center gap-2 mb-2 justify-center">
+                                                <img src={currentProduct.imagePath} alt="Aperçu" class="w-10 h-10 object-cover rounded shadow" />
+                                                <span class="text-xs truncate font-mono text-gray-500 max-w-[150px]">{currentProduct.imagePath}</span>
+                                            </div>
+                                        {:else}
+                                            <p class="text-[10px] text-gray-400 uppercase font-black">Glissez une image ici</p>
+                                        {/if}
                                     </div>
-                                {:else}
-                                    <p class="text-[10px] text-gray-400 uppercase font-black">Glissez une image ici</p>
-                                {/if}
-                                <Input bind:value={currentProduct.imagePath} class="h-8 font-mono text-[10px]" placeholder="Ex: static/img.png" />
-                            </div>
+                                </FileDropZone.Trigger>
+                            </FileDropZone.Root>
+
+                            <Input bind:value={currentProduct.imagePath} class="h-8 font-mono text-[10px]" placeholder="Ex: static/img.png" />
                         </div>
                     </div>
 
