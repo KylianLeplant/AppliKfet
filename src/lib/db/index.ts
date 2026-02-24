@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/sqlite-proxy";
 import { invoke } from "@tauri-apps/api/core";
-import { customers, categories, productsCategories, products, commande, type NewCustomer, type NewCommande, type NewProduct, type NewProductCategory, type NewCategory } from "./schema";
+import { customers, categories, productsCategories, products, orders, moneyAdjustments, type NewCustomer, type NewOrder, type NewProduct, type NewProductCategory, type NewCategory } from "./schema";
 import * as schema from "./schema";
 import { eq, sql } from "drizzle-orm";
 import { seed } from "./seed";
@@ -53,7 +53,9 @@ export async function initDb() {
           "id" INTEGER PRIMARY KEY AUTOINCREMENT,
           "name" TEXT NOT NULL,
           "dept" TEXT NOT NULL,
-          "year" TEXT NOT NULL
+          "year" TEXT NOT NULL,
+          "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+          "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP
         );
         `);
 
@@ -64,7 +66,9 @@ export async function initDb() {
           "lastName" TEXT NOT NULL,
           "account" REAL DEFAULT 0,
           "isKfetier" INTEGER DEFAULT 0,
-          "categoryId" INTEGER REFERENCES categories(id)
+          "categoryId" INTEGER REFERENCES categories(id),
+          "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+          "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP
         );
         `);
 
@@ -72,7 +76,9 @@ export async function initDb() {
         CREATE TABLE IF NOT EXISTS productsCategories (
           "id" INTEGER PRIMARY KEY AUTOINCREMENT,
           "name" TEXT NOT NULL,
-          "imagePath" TEXT
+          "imagePath" TEXT,
+          "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+          "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP
         );
         `);
 
@@ -85,17 +91,29 @@ export async function initDb() {
           "priceForKfetier" REAL NOT NULL,
           "priceForThreeKfetier" REAL,
           "categoryId" INTEGER REFERENCES productsCategories(id),
-          "imagePath" TEXT
+          "imagePath" TEXT,
+          "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+          "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP
         );
         `);
 
         await db.run(sql`
-        CREATE TABLE IF NOT EXISTS commande (
+        CREATE TABLE IF NOT EXISTS orders (
           "id" INTEGER PRIMARY KEY AUTOINCREMENT,
           "customerId" INTEGER REFERENCES customers(id),
           "productId" INTEGER REFERENCES products(id),
           "quantity" INTEGER NOT NULL,
-          "totalPrice" REAL NOT NULL
+          "totalPrice" REAL NOT NULL,
+          "created_at" TEXT DEFAULT CURRENT_TIMESTAMP
+        );
+        `);
+
+        await db.run(sql`
+        CREATE TABLE IF NOT EXISTS money_adjustments (
+            "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+            "customerId" INTEGER NOT NULL REFERENCES customers(id),
+            "amount" REAL NOT NULL,
+            "created_at" TEXT DEFAULT CURRENT_TIMESTAMP
         );
         `);
 
@@ -110,7 +128,8 @@ export async function resetDb() {
   console.log("Resetting database (dropping and creating tables)...");
   try {
      // Exécution séquentielle pour éviter les erreurs de typage avec db.batch([sql`...`])
-     await db.run(sql`DROP TABLE IF EXISTS commande;`);
+     await db.run(sql`DROP TABLE IF EXISTS money_adjustments;`);
+     await db.run(sql`DROP TABLE IF EXISTS orders;`);
      await db.run(sql`DROP TABLE IF EXISTS products;`);
      await db.run(sql`DROP TABLE IF EXISTS productsCategories;`);
      await db.run(sql`DROP TABLE IF EXISTS customers;`);
@@ -172,7 +191,11 @@ export async function updateProductCategory(id: number, data: Partial<NewProduct
 }
 
 export async function deleteProductCategory(id: number) {
-  return await db.delete(productsCategories).where(eq(productsCategories.id, id));
+  // Transaction : Supprimer d'abord les produits liés, puis la catégorie
+  return await db.batch([
+    db.delete(products).where(eq(products.categoryId, id)),
+    db.delete(productsCategories).where(eq(productsCategories.id, id))
+  ]);
 }
 
 export async function getProducts(ProductCategoryId?: number) {
@@ -197,7 +220,11 @@ export async function updateCategory(id: number, data: Partial<NewCategory>) {
 }
 
 export async function deleteCategory(id: number) {
-  return await db.delete(categories).where(eq(categories.id, id));
+  // Transaction : Détacher les clients de cette catégorie (set null) avant de la supprimer
+  return await db.batch([
+    db.update(customers).set({ categoryId: null }).where(eq(customers.categoryId, id)),
+    db.delete(categories).where(eq(categories.id, id))
+  ]);
 }
 
 export async function createProduct(data: NewProduct) {
@@ -214,11 +241,11 @@ export async function deleteProduct(id: number) {
   return await db.delete(products).where(eq(products.id, id));
 }
 
-export async function createCommande(data: NewCommande) {
+export async function createOrder(data: NewOrder) {
   if (data.customerId && data.totalPrice !== undefined) {
       // Transaction atomique via l'API Batch de Drizzle Proxy
       const batchResult = await db.batch([
-        db.insert(commande).values(data),
+        db.insert(orders).values(data),
         db.update(customers)
           .set({
             account: sql`${customers.account} - ${data.totalPrice}`
@@ -228,7 +255,7 @@ export async function createCommande(data: NewCommande) {
       // On retourne le résultat pertinent
       return batchResult; 
   } else {
-      return await db.insert(commande).values(data);
+      return await db.insert(orders).values(data);
   }
 }
 
@@ -239,9 +266,16 @@ export async function updateCustomer(id: number, data: Partial<NewCustomer>) {
 }
 
 export async function addMoneyToCustomer(id: number, amount: number) {
-  return await db.update(customers)
-    .set({
-      account: sql`${customers.account} + ${amount}`
+  // Transaction atomique : Créditer le compte + Enregistrer l'historique
+  return await db.batch([
+    db.update(customers)
+      .set({
+        account: sql`${customers.account} + ${amount}`
+      })
+      .where(eq(customers.id, id)),
+    db.insert(moneyAdjustments).values({
+        customerId: id,
+        amount: amount
     })
-    .where(eq(customers.id, id));
+  ]);
 }

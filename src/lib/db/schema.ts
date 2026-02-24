@@ -1,12 +1,14 @@
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
-import { type InferSelectModel, type InferInsertModel } from "drizzle-orm";
+import { type InferSelectModel, type InferInsertModel, sql } from "drizzle-orm";
 import { image } from "@tauri-apps/api";
 
 export const categories = sqliteTable("categories", {
     id: integer("id").primaryKey({ autoIncrement: true }),
     name: text("name").notNull(),
     dept: text("dept").notNull(),
-    year: text("year").notNull()
+    year: text("year").notNull(),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`)
 });
 
 export const customers = sqliteTable("customers", {
@@ -15,13 +17,17 @@ export const customers = sqliteTable("customers", {
     lastName: text("lastName").notNull(),
     account: real("account").default(0),
     isKfetier: integer("isKfetier", { mode: "boolean" }).default(false), 
-    categoryId: integer("categoryId").references(() => categories.id)
+    categoryId: integer("categoryId").references(() => categories.id),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`)
 });
 
 export const productsCategories = sqliteTable("productsCategories", {
     id: integer("id").primaryKey({ autoIncrement: true }),
     name: text("name").notNull(),
-    imagePath: text("imagePath")
+    imagePath: text("imagePath"),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`)
 });
 
 export const products = sqliteTable("products", {
@@ -32,15 +38,25 @@ export const products = sqliteTable("products", {
     priceForKfetier: real("priceForKfetier").notNull(),
     priceForThreeKfetier: real("priceForThreeKfetier"),
     categoryId: integer("categoryId").references(() => productsCategories.id),
-    imagePath: text("imagePath")
+    imagePath: text("imagePath"),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`)
 });
 
-export const commande = sqliteTable("commande", {
+export const orders = sqliteTable("orders", {
     id: integer("id").primaryKey({ autoIncrement: true }),
     customerId: integer("customerId").references(() => customers.id),
     productId: integer("productId").references(() => products.id),
     quantity: integer("quantity").notNull(),
-    totalPrice: real("totalPrice").notNull()
+    totalPrice: real("totalPrice").notNull(),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`)
+});
+
+export const moneyAdjustments = sqliteTable("money_adjustments", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customerId").references(() => customers.id).notNull(),
+    amount: real("amount").notNull(),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`)
 });
 
 export type Category = InferSelectModel<typeof categories>;
@@ -60,5 +76,5 @@ export type NewProductCategory = InferInsertModel<typeof productsCategories>;
 export type Product = InferSelectModel<typeof products>;
 export type NewProduct = InferInsertModel<typeof products>;
 
-export type Commande = InferSelectModel<typeof commande>;
-export type NewCommande = InferInsertModel<typeof commande>;
+export type Order = InferSelectModel<typeof orders>;
+export type NewOrder = InferInsertModel<typeof orders>;

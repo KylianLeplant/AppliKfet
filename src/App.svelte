@@ -1,7 +1,7 @@
 <script lang="ts">
     import CustomersPage from '$lib/components/customers/CustomersPage.svelte';
     import { onMount } from "svelte";
-    import { initDb, resetDb, createCommande, type ProductCategory, type Customer, type Product } from "$lib/db";
+    import { initDb, resetDb, createOrder, type ProductCategory, type Customer, type Product } from "$lib/db";
     import CatalogPage from "$lib/components/shop/CatalogPage.svelte";
     import ProductsPage from "$lib/components/shop/ProductsPage.svelte";
     import ProductQuantityPage from "$lib/components/shop/ProductQuantityPage.svelte";
@@ -44,7 +44,7 @@
         if (!selectedProduct) return;
         
         try {
-            await createCommande({
+            await createOrder({
                 customerId: selectedCustomerOrder?.id ?? null,
                 productId: selectedProduct.id,
                 quantity: quantity,
