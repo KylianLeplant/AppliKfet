@@ -9,6 +9,8 @@
         type NewProductCategory
     } from "$lib/db";
     import { Input } from "$lib/components/ui/input/index.js";
+    import { Button } from "$lib/components/ui/button/index.js";
+    import * as Dialog from "$lib/components/ui/dialog/index.js";
     import { toast } from "svelte-sonner";
 
     let categories = $state<ProductCategory[]>([]);
@@ -90,12 +92,13 @@
             <h1 class="text-4xl font-black text-white uppercase tracking-tighter">Gestion des Catégories</h1>
             <p class="text-white/70 font-bold uppercase tracking-widest text-xs">Organisation du Catalogue</p>
         </div>
-        <button 
+        <Button 
+            variant="ghost"
             onclick={startAdd}
-            class="bg-white text-indigo-600 px-6 py-3 rounded-xl font-black shadow-lg hover:shadow-white/20 transition-all active:scale-95 uppercase tracking-widest text-sm"
+            class="bg-white text-indigo-600 px-6 py-3 h-auto rounded-xl font-black shadow-lg hover:shadow-white/20 hover:bg-white hover:text-indigo-600 transition-all active:scale-95 uppercase tracking-widest text-sm"
         >
             Ajouter une catégorie
-        </button>
+        </Button>
     </div>
 
     <!-- Filtres et Recherche -->
@@ -122,12 +125,22 @@
                         <h3 class="font-black text-white uppercase text-xl leading-tight tracking-tighter">{category.name}</h3>
                     </div>
                     <div class="absolute top-2 right-2 flex gap-2">
-                        <button onclick={() => startEdit(category)} class="bg-white/90 p-2 rounded-lg text-indigo-600 shadow-sm hover:bg-white transition-colors">
+                        <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onclick={() => startEdit(category)} 
+                            class="bg-white/90 p-2 rounded-lg text-indigo-600 shadow-sm hover:bg-white hover:text-indigo-600 transition-all active:scale-95"
+                        >
                             ✏️
-                        </button>
-                        <button onclick={() => handleDelete(category.id)} class="bg-red-500/90 p-2 rounded-lg text-white shadow-sm hover:bg-red-600 transition-colors">
+                        </Button>
+                        <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onclick={() => handleDelete(category.id)} 
+                            class="bg-red-500/90 p-2 rounded-lg text-white shadow-sm hover:bg-red-600 hover:text-white transition-all active:scale-95"
+                        >
                             🗑️
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -135,61 +148,63 @@
     </div>
 
     <!-- Modal d'édition/ajout -->
-    {#if isEditing}
-        <div class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                <div class="p-8 space-y-6">
-                    <h2 class="text-2xl font-black text-gray-800 uppercase tracking-tighter border-b pb-4">
+    <Dialog.Root bind:open={isEditing}>
+        <Dialog.Content class="sm:max-w-lg p-0 overflow-hidden rounded-3xl border-0 shadow-2xl">
+            <div class="p-8 space-y-6">
+                <Dialog.Header>
+                    <Dialog.Title class="text-2xl font-black text-gray-800 uppercase tracking-tighter border-b pb-4">
                         {currentCategory.id ? 'Modifier' : 'Ajouter'} une catégorie
-                    </h2>
+                    </Dialog.Title>
+                </Dialog.Header>
 
-                    <div class="space-y-4">
-                        <div class="space-y-1">
-                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nom de la catégorie</span>
-                            <Input bind:value={currentCategory.name} class="font-bold h-12" placeholder="Boissons, Snacks, etc." />
-                        </div>
-
-                        <div class="space-y-1">
-                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Image de couverture</span>
-                            <div 
-                                class="border-2 border-dashed border-gray-200 rounded-xl p-6 transition-colors hover:bg-gray-50 text-center cursor-pointer"
-                                ondragover={(e) => e.preventDefault()}
-                                ondrop={handleDrop}
-                                role="region"
-                                aria-label="Zone de dépôt d'image"
-                            >
-                                {#if currentCategory.imagePath}
-                                    <div class="flex flex-col items-center gap-2 mb-2">
-                                        <img src={currentCategory.imagePath} alt="Aperçu" class="w-24 h-24 object-cover rounded-xl shadow-lg" />
-                                        <span class="text-[10px] font-mono text-gray-500 break-all">{currentCategory.imagePath}</span>
-                                    </div>
-                                {:else}
-                                    <div class="py-4">
-                                        <p class="text-xs text-gray-400 uppercase font-black">Glissez une image ici</p>
-                                        <p class="text-[8px] text-gray-300">ou entrez le chemin manuellement</p>
-                                    </div>
-                                {/if}
-                                <Input bind:value={currentCategory.imagePath} class="h-8 font-mono text-[10px]" placeholder="Ex: static/products_categories/boisson.png" />
-                            </div>
-                        </div>
+                <div class="space-y-4">
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nom de la catégorie</span>
+                        <Input bind:value={currentCategory.name} class="font-bold h-12" placeholder="Boissons, Snacks, etc." />
                     </div>
 
-                    <div class="flex gap-4 pt-6">
-                        <button 
-                            onclick={() => isEditing = false}
-                            class="flex-1 py-4 px-6 border border-gray-200 rounded-2xl font-black text-gray-500 hover:bg-gray-50 transition-all uppercase tracking-widest text-xs"
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Image de couverture</span>
+                        <div 
+                            class="border-2 border-dashed border-gray-200 rounded-xl p-6 transition-colors hover:bg-gray-50 text-center cursor-pointer"
+                            ondragover={(e) => e.preventDefault()}
+                            ondrop={handleDrop}
+                            role="region"
+                            aria-label="Zone de dépôt d'image"
                         >
-                            Annuler
-                        </button>
-                        <button 
-                            onclick={saveCategory}
-                            class="flex-[2] py-4 px-6 bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 uppercase tracking-widest text-xs"
-                        >
-                            {currentCategory.id ? 'Valider' : 'Créer'}
-                        </button>
+                            {#if currentCategory.imagePath}
+                                <div class="flex flex-col items-center gap-2 mb-2">
+                                    <img src={currentCategory.imagePath} alt="Aperçu" class="w-24 h-24 object-cover rounded-xl shadow-lg" />
+                                    <span class="text-[10px] font-mono text-gray-500 break-all">{currentCategory.imagePath}</span>
+                                </div>
+                            {:else}
+                                <div class="py-4">
+                                    <p class="text-xs text-gray-400 uppercase font-black">Glissez une image ici</p>
+                                    <p class="text-[8px] text-gray-300">ou entrez le chemin manuellement</p>
+                                </div>
+                            {/if}
+                            <Input bind:value={currentCategory.imagePath} class="h-8 font-mono text-[10px]" placeholder="Ex: static/products_categories/boisson.png" />
+                        </div>
                     </div>
                 </div>
+
+                <div class="flex gap-4 pt-6">
+                    <Button 
+                        variant="ghost"
+                        onclick={() => isEditing = false}
+                        class="flex-1 py-4 px-6 h-auto border border-gray-200 rounded-2xl font-black text-gray-500 hover:bg-gray-50 transition-all uppercase tracking-widest text-[10px]"
+                    >
+                        Annuler
+                    </Button>
+                    <Button 
+                        variant="ghost"
+                        onclick={saveCategory}
+                        class="flex-[2] py-4 px-6 h-auto bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:text-white transition-all active:scale-95 uppercase tracking-widest text-[10px]"
+                    >
+                        {currentCategory.id ? 'Modifier' : 'Créer'}
+                    </Button>
+                </div>
             </div>
-        </div>
-    {/if}
+        </Dialog.Content>
+    </Dialog.Root>
 </div>

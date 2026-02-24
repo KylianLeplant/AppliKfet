@@ -9,6 +9,8 @@
         type NewCategory
     } from "$lib/db";
     import { Input } from "$lib/components/ui/input/index.js";
+    import { Button } from "$lib/components/ui/button/index.js";
+    import * as Dialog from "$lib/components/ui/dialog/index.js";
     import { toast } from "svelte-sonner";
 
     let categories = $state<Category[]>([]);
@@ -91,12 +93,13 @@
             <h1 class="text-4xl font-black text-white uppercase tracking-tighter">Promotions Clients</h1>
             <p class="text-white/70 font-bold uppercase tracking-widest text-xs">Gestion des Départs et Années</p>
         </div>
-        <button 
+        <Button 
+            variant="ghost"
             onclick={startAdd}
-            class="bg-white text-indigo-600 px-6 py-3 rounded-xl font-black shadow-lg hover:shadow-white/20 transition-all active:scale-95 uppercase tracking-widest text-sm"
+            class="bg-white text-indigo-600 px-6 py-3 h-auto rounded-xl font-black shadow-lg hover:shadow-white/20 hover:bg-white hover:text-indigo-600 transition-all active:scale-95 uppercase tracking-widest text-sm"
         >
-            Ajouter une promotion
-        </button>
+            Ajouter une Classe
+        </Button>
     </div>
 
     <!-- Filtres et Recherche -->
@@ -119,8 +122,8 @@
                             {category.dept}
                         </span>
                         <div class="flex gap-1">
-                            <button onclick={() => startEdit(category)} class="text-gray-400 hover:text-indigo-600 p-1">✏️</button>
-                            <button onclick={() => handleDelete(category.id)} class="text-gray-400 hover:text-red-500 p-1">🗑️</button>
+                            <Button variant="ghost" size="icon" onclick={() => startEdit(category)} class="text-gray-400 hover:text-indigo-600 p-1">✏️</Button>
+                            <Button variant="ghost" size="icon" onclick={() => handleDelete(category.id)} class="text-gray-400 hover:text-red-500 p-1">🗑️</Button>
                         </div>
                    </div>
                    <h3 class="font-black text-gray-800 uppercase text-2xl tracking-tighter mb-1 leading-none">{category.name}</h3>
@@ -131,48 +134,50 @@
     </div>
 
     <!-- Modal d'édition/ajout -->
-    {#if isEditing}
-        <div class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                <div class="p-8 space-y-6">
-                    <h2 class="text-2xl font-black text-gray-800 uppercase tracking-tighter border-b pb-4">
+    <Dialog.Root bind:open={isEditing}>
+        <Dialog.Content class="sm:max-w-lg p-0 overflow-hidden rounded-3xl border-0 shadow-2xl">
+            <div class="p-8 space-y-6">
+                <Dialog.Header>
+                    <Dialog.Title class="text-2xl font-black text-gray-800 uppercase tracking-tighter border-b pb-4">
                         {currentCategory.id ? 'Modifier' : 'Ajouter'} une promotion
-                    </h2>
+                    </Dialog.Title>
+                </Dialog.Header>
 
-                    <div class="grid grid-cols-1 gap-4">
-                        <div class="space-y-1">
-                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nom (ex: FISE 2026)</span>
-                            <Input bind:value={currentCategory.name} class="font-bold h-12" placeholder="Nom de la classe" />
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Département</span>
-                                <Input bind:value={currentCategory.dept} class="font-bold h-12" placeholder="GIM, GEA, etc." />
-                            </div>
-                            <div class="space-y-1">
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Année</span>
-                                <Input bind:value={currentCategory.year} class="font-bold h-12" placeholder="1A, 2A, 3A..." />
-                            </div>
-                        </div>
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nom (ex: FISE 2026)</span>
+                        <Input bind:value={currentCategory.name} class="font-bold h-12" placeholder="Nom de la classe" />
                     </div>
 
-                    <div class="flex gap-4 pt-6">
-                        <button 
-                            onclick={() => isEditing = false}
-                            class="flex-1 py-4 px-6 border border-gray-200 rounded-2xl font-black text-gray-500 hover:bg-gray-50 transition-all uppercase tracking-widest text-xs"
-                        >
-                            Annuler
-                        </button>
-                        <button 
-                            onclick={saveCategory}
-                            class="flex-[2] py-4 px-6 bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 uppercase tracking-widest text-xs"
-                        >
-                            {currentCategory.id ? 'Valider' : 'Créer'}
-                        </button>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Département</span>
+                            <Input bind:value={currentCategory.dept} class="font-bold h-12" placeholder="GIM, GEA, etc." />
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Année</span>
+                            <Input bind:value={currentCategory.year} class="font-bold h-12" placeholder="1A, 2A, 3A..." />
+                        </div>
                     </div>
                 </div>
+
+                <div class="flex gap-4 pt-6">
+                    <Button 
+                        variant="ghost"
+                        onclick={() => isEditing = false}
+                        class="flex-1 py-4 px-6 h-auto border border-gray-200 rounded-2xl font-black text-gray-500 hover:bg-gray-50 transition-all uppercase tracking-widest text-[10px]"
+                    >
+                        Annuler
+                    </Button>
+                    <Button 
+                        variant="ghost"
+                        onclick={saveCategory}
+                        class="flex-[2] py-4 px-6 h-auto bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:text-white transition-all active:scale-95 uppercase tracking-widest text-[10px]"
+                    >
+                        {currentCategory.id ? 'Modifier' : 'Créer'}
+                    </Button>
+                </div>
             </div>
-        </div>
-    {/if}
+        </Dialog.Content>
+    </Dialog.Root>
 </div>

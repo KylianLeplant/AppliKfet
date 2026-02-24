@@ -84,15 +84,21 @@
                 </div>
             </div>
             <div class="pt-4">
-                <button 
-                    onclick={() => quantity = 1}
-                    class="mt-4 px-6 py-3 bg-gray-100 border border-gray-400 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 transition-all active:scale-95 uppercase tracking-widest text-sm"
-                    >1</button>
+                <Button 
+                    variant="ghost"
+                    onclick={() => quantityArr = [1]}
+                    class="mt-4 px-6 py-3 h-auto bg-gray-100 border border-gray-400 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 hover:text-gray-500 transition-all active:scale-95 uppercase tracking-widest text-sm"
+                >
+                    1
+                </Button>
                 {#if packPriceLabel !== null}
-                    <button 
-                        onclick={() => quantity = 3}
-                        class="mt-4 ml-4 px-6 py-3 bg-gray-100 border border-gray-400 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 transition-all active:scale-95 uppercase tracking-widest text-sm"
-                    >3</button>
+                    <Button 
+                        variant="ghost"
+                        onclick={() => quantityArr = [3]}
+                        class="mt-4 ml-4 px-6 py-3 h-auto bg-gray-100 border border-gray-400 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 hover:text-gray-500 transition-all active:scale-95 uppercase tracking-widest text-sm"
+                    >
+                        3
+                    </Button>
                 {/if}
             </div>
             <!-- Price Recap -->
@@ -113,18 +119,20 @@
 
             <!-- Actions -->
             <div class="flex gap-4 pt-4">
-                <button 
+                <Button 
+                    variant="ghost"
                     onclick={onBack}
-                    class="flex-1 py-4 px-6 border border-gray-200 rounded-2xl font-black text-gray-500 hover:bg-gray-50 transition-all active:scale-95 uppercase tracking-widest text-sm"
+                    class="flex-1 py-4 px-6 h-auto border border-gray-200 rounded-2xl font-black text-gray-500 hover:bg-gray-50 hover:text-gray-500 transition-all active:scale-95 uppercase tracking-widest text-sm"
                 >
                     Annuler
-                </button>
-                <button 
+                </Button>
+                <Button 
+                    variant="ghost"
                     onclick={() => onConfirm(quantity, totalPrice)}
-                    class="flex-[2] py-4 px-6 bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 uppercase tracking-widest text-sm"
+                    class="flex-[2] py-4 px-6 h-auto bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:text-white transition-all active:scale-95 uppercase tracking-widest text-sm"
                 >
                     Confirmer l'ajout
-                </button>
+                </Button>
             </div>
         </div>
     </div>

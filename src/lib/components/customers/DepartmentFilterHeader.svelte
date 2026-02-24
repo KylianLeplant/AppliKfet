@@ -3,23 +3,26 @@
   import type { Customer } from "$lib/db/schema";
   import { getDepts } from "$lib/db";
   import { onMount } from "svelte";
+  import * as Select from '../ui/select';
 
   let { column }: { column: Column<Customer, unknown> } = $props();
   let depts = $state<string[]>([]);
   let showFilter = $state(false);
+  let selectedValue = $state<string>((column.getFilterValue() as string) ?? "all");
 
   onMount(async () => {
     depts = await getDepts();
   });
 
-  function handleChange(e: Event) {
-    const value = (e.target as HTMLSelectElement).value;
+  function handleValueChange(value: string) {
+    selectedValue = value;
     column.setFilterValue(value === "all" ? undefined : value);
   }
 
   function toggleFilter(e: MouseEvent) {
     const target = e.target as HTMLElement;
-    if (target.tagName !== 'SELECT') {
+    // On ne ferme pas si on clique sur le trigger du select
+    if (!target.closest('[role="combobox"]')) {
       showFilter = !showFilter;
     }
   }
@@ -33,16 +36,17 @@
   
   {#if showFilter || column.getFilterValue()}
     <div onclick={(e) => e.stopPropagation()} role="presentation">
-      <select 
-        class="p-1 rounded bg-background border text-xs font-normal min-w-[100px]" 
-        onchange={handleChange}
-        value={column.getFilterValue() as string ?? "all"}
-      >
-        <option value="all">Tous</option>
-        {#each depts as dept}
-          <option value={dept}>{dept}</option>
-        {/each}
-      </select>
+      <Select.Root type="single" bind:value={selectedValue} onValueChange={handleValueChange}>
+        <Select.Trigger class="h-7 text-xs font-normal min-w-[100px] px-2 py-1">
+          {selectedValue === "all" ? "Tous" : selectedValue}
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="all">Tous</Select.Item>
+          {#each depts as dept}
+            <Select.Item value={dept}>{dept}</Select.Item>
+          {/each}
+        </Select.Content>
+      </Select.Root>
     </div>
   {/if}
 </div>

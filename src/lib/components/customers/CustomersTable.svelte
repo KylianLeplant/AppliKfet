@@ -4,6 +4,9 @@
   import { columns } from "./columns";
   import { getCustomers, getDepts, getYears, type Customer, initDb } from "$lib/db";
   import type { ColumnFiltersState } from "@tanstack/table-core";
+  import { Checkbox } from '../ui/checkbox';
+  import { Label } from '../ui/label';
+  import * as Select from '../ui/select';
 
   let { 
     selectedCustomer = $bindable(null),
@@ -51,9 +54,25 @@
     }
   }
 
-  function handleKfetierChange(e: Event) {
-    const checked = (e.target as HTMLInputElement).checked;
+  let isKfetierFilter = $state(false);
+  let selectedDept = $state("all");
+  let selectedYear = $state("all");
+  
+  // On utilise une fonction classique au lieu d'un $effect pour éviter 
+  // que le filtre ne s'applique au montage initial avant que les données soient prêtes
+  function handleKfetierChange(checked: boolean) {
+    isKfetierFilter = checked;
     handleFilterChange("isKfetier", checked ? true : false);
+  }
+
+  function handleDeptChange(value: string) {
+    selectedDept = value;
+    handleFilterChange("dept", value);
+  }
+
+  function handleYearChange(value: string) {
+    selectedYear = value;
+    handleFilterChange("year", value);
   }
 </script>
 
@@ -62,41 +81,45 @@
     <h1 class="text-2xl font-bold">Clients</h1>
     <div class="flex items-center gap-6">
       <div class="flex items-center gap-2">
-        <input 
-          type="checkbox" 
+        <Checkbox 
           id="kfetier-filter"
-          class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-          onchange={handleKfetierChange}
+          checked={isKfetierFilter}
+          onCheckedChange={handleKfetierChange}
+          class="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
         />
-        <label for="kfetier-filter" class="text-sm font-medium cursor-pointer">
+        <Label for="kfetier-filter" class="text-sm font-medium cursor-pointer">
           Kfétiers uniquement
-        </label>
+        </Label>
       </div>
 
       <div class="flex items-center gap-2">
         <span class="text-sm font-medium">Département :</span>
-        <select 
-          class="h-9 w-40 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-          onchange={(e) => handleFilterChange("dept", (e.target as HTMLSelectElement).value)}
-        >
-          <option value="all">Tous</option>
-          {#each depts as dept}
-            <option value={dept}>{dept}</option>
-          {/each}
-        </select>
+        <Select.Root type="single" bind:value={selectedDept} onValueChange={handleDeptChange}>
+          <Select.Trigger class="h-9 w-40">
+            {selectedDept === "all" ? "Tous" : selectedDept}
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="all">Tous</Select.Item>
+            {#each depts as dept}
+              <Select.Item value={dept}>{dept}</Select.Item>
+            {/each}
+          </Select.Content>
+        </Select.Root>
       </div>
 
       <div class="flex items-center gap-2">
         <span class="text-sm font-medium">Année :</span>
-        <select 
-          class="h-9 w-40 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-          onchange={(e) => handleFilterChange("year", (e.target as HTMLSelectElement).value)}
-        >
-          <option value="all">Toutes</option>
-          {#each years as year}
-            <option value={year}>{year}</option>
-          {/each}
-        </select>
+        <Select.Root type="single" bind:value={selectedYear} onValueChange={handleYearChange}>
+          <Select.Trigger class="h-9 w-40">
+            {selectedYear === "all" ? "Toutes" : selectedYear}
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="all">Toutes</Select.Item>
+            {#each years as year}
+              <Select.Item value={year}>{year}</Select.Item>
+            {/each}
+          </Select.Content>
+        </Select.Root>
       </div>
     </div>
   </div>

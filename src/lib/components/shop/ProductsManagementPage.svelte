@@ -13,6 +13,8 @@
     import * as Card from "$lib/components/ui/card/index.js";
     import { Input } from "$lib/components/ui/input/index.js";
     import { Button } from "$lib/components/ui/button/index.js";
+    import * as Select from "$lib/components/ui/select/index.js";
+    import * as Dialog from "$lib/components/ui/dialog/index.js";
     import { toast } from "svelte-sonner";
 
     let products = $state<Product[]>([]);
@@ -29,6 +31,9 @@
         imagePath: ""
     });
 
+    // On utilise une string pour le Select de shadcn
+    let selectedCategoryId = $state<string>("");
+
     onMount(async () => {
         await refreshData();
     });
@@ -44,6 +49,7 @@
 
     function startEdit(product: Product) {
         currentProduct = { ...product };
+        selectedCategoryId = product.categoryId ? product.categoryId.toString() : "";
         isEditing = true;
     }
 
@@ -57,7 +63,13 @@
             categoryId: categories[0]?.id ?? null,
             imagePath: ""
         };
+        selectedCategoryId = currentProduct.categoryId ? currentProduct.categoryId.toString() : "";
         isEditing = true;
+    }
+
+    function handleCategoryChange(value: string) {
+        selectedCategoryId = value;
+        currentProduct.categoryId = value ? parseInt(value) : null;
     }
 
     async function saveProduct() {
@@ -111,12 +123,13 @@
             <h1 class="text-4xl font-black text-white uppercase tracking-tighter">Gestion des Produits</h1>
             <p class="text-white/70 font-bold uppercase tracking-widest text-xs">Catalogue et Tarification</p>
         </div>
-        <button 
+        <Button 
+            variant="ghost"
             onclick={startAdd}
-            class="bg-white text-indigo-600 px-6 py-3 rounded-xl font-black shadow-lg hover:shadow-white/20 transition-all active:scale-95 uppercase tracking-widest text-sm"
+            class="bg-white text-indigo-600 px-6 py-3 h-auto rounded-xl font-black shadow-lg hover:shadow-white/20 hover:bg-white hover:text-indigo-600 transition-all active:scale-95 uppercase tracking-widest text-sm"
         >
             Ajouter un produit
-        </button>
+        </Button>
     </div>
 
     <!-- Filtres et Recherche -->
@@ -140,14 +153,24 @@
                         <div class="w-full h-full flex items-center justify-center text-gray-300">Pas d'image</div>
                     {/if}
                     <div class="absolute top-2 right-2 flex gap-2">
-                        <button onclick={() => startEdit(product)} class="bg-white/90 p-2 rounded-lg text-indigo-600 shadow-sm hover:bg-white transition-colors">
+                        <Button 
+                            variant="ghost"
+                            size="icon"
+                            onclick={() => startEdit(product)} 
+                            class="bg-white/90 p-2 rounded-lg text-indigo-600 shadow-sm hover:bg-white hover:text-indigo-600 transition-all active:scale-95"
+                        >
                             <span class="sr-only">Modifier</span>
                             ✏️
-                        </button>
-                        <button onclick={() => handleDelete(product.id)} class="bg-red-500/90 p-2 rounded-lg text-white shadow-sm hover:bg-red-600 transition-colors">
+                        </Button>
+                        <Button 
+                            variant="ghost"
+                            size="icon"
+                            onclick={() => handleDelete(product.id)} 
+                            class="bg-red-500/90 p-2 rounded-lg text-white shadow-sm hover:bg-red-600 hover:text-white transition-all active:scale-95"
+                        >
                             <span class="sr-only">Supprimer</span>
                             🗑️
-                        </button>
+                        </Button>
                     </div>
                 </div>
                 <div class="p-4 flex-1 flex flex-col justify-between">
@@ -176,110 +199,112 @@
     </div>
 
     <!-- Modal d'édition/ajout (Overlay) -->
-    {#if isEditing}
-        <div class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div 
-                class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto"
-            >
-                <div class="p-8 space-y-6">
-                    <h2 class="text-2xl font-black text-gray-800 uppercase tracking-tighter border-b pb-4">
+    <Dialog.Root bind:open={isEditing}>
+        <Dialog.Content class="sm:max-w-2xl p-0 overflow-hidden rounded-3xl border-0 shadow-2xl">
+            <div class="p-8 space-y-6 max-h-[90vh] overflow-y-auto">
+                <Dialog.Header>
+                    <Dialog.Title class="text-2xl font-black text-gray-800 uppercase tracking-tighter border-b pb-4">
                         {currentProduct.id ? 'Modifier' : 'Ajouter'} un produit
-                    </h2>
+                    </Dialog.Title>
+                </Dialog.Header>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Infos Générales -->
-                        <div class="space-y-4">
-                            <div class="space-y-1">
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nom du Produit</span>
-                                <Input bind:value={currentProduct.name} class="font-bold h-12" placeholder="Cola, Kinder, etc." />
-                            </div>
-
-                            <div class="space-y-1">
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Catégorie</span>
-                                <select 
-                                    bind:value={currentProduct.categoryId}
-                                    class="w-full h-12 rounded-lg border border-gray-200 px-3 font-bold bg-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                                >
-                                    {#each categories as cat}
-                                        <option value={cat.id}>{cat.name}</option>
-                                    {/each}
-                                </select>
-                            </div>
-
-                            <div class="space-y-1">
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Chemin Image</span>
-                                <div 
-                                    class="border-2 border-dashed border-gray-200 rounded-xl p-4 transition-colors hover:bg-gray-50 text-center cursor-pointer"
-                                    ondragover={(e) => e.preventDefault()}
-                                    ondrop={handleDrop}
-                                    role="region"
-                                    aria-label="Zone de dépôt d'image"
-                                >
-                                    {#if currentProduct.imagePath}
-                                        <div class="flex items-center gap-2 mb-2">
-                                            <img src={currentProduct.imagePath} alt="Aperçu" class="w-10 h-10 object-cover rounded shadow" />
-                                            <span class="text-xs truncate font-mono text-gray-500">{currentProduct.imagePath}</span>
-                                        </div>
-                                    {:else}
-                                        <p class="text-[10px] text-gray-400 uppercase font-black">Glissez une image ici</p>
-                                    {/if}
-                                    <Input bind:value={currentProduct.imagePath} class="h-8 font-mono text-[10px]" placeholder="Ex: static/img.png" />
-                                </div>
-                            </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Infos Générales -->
+                    <div class="space-y-4">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nom du Produit</span>
+                            <Input bind:value={currentProduct.name} class="font-bold h-12" placeholder="Cola, Kinder, etc." />
                         </div>
 
-                        <!-- Côté Tarifs -->
-                        <div class="bg-gray-50 p-6 rounded-2xl space-y-6">
-                            <div class="space-y-4">
-                                <h4 class="text-indigo-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span> Standard
-                                </h4>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div class="space-y-1">
-                                        <span class="text-[8px] font-bold text-gray-400 uppercase">Prix Unitaire (€)</span>
-                                        <Input type="number" step="0.01" bind:value={currentProduct.price} class="font-bold h-10" />
-                                    </div>
-                                    <div class="space-y-1">
-                                        <span class="text-[8px] font-bold text-gray-400 uppercase">Prix Lot de 3 (€)</span>
-                                        <Input type="number" step="0.01" bind:value={currentProduct.priceForThree} class="font-bold h-10" />
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Catégorie</span>
+                            <Select.Root type="single" bind:value={selectedCategoryId} onValueChange={handleCategoryChange}>
+                                <Select.Trigger class="w-full h-12 font-bold">
+                                    {categories.find(c => c.id.toString() === selectedCategoryId)?.name || "Sélectionner une catégorie"}
+                                </Select.Trigger>
+                                <Select.Content>
+                                    {#each categories as cat}
+                                        <Select.Item value={cat.id.toString()}>{cat.name}</Select.Item>
+                                    {/each}
+                                </Select.Content>
+                            </Select.Root>
+                        </div>
 
-                            <div class="space-y-4">
-                                <h4 class="text-purple-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span> Kfetier
-                                </h4>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div class="space-y-1">
-                                        <span class="text-[8px] font-bold text-gray-400 uppercase">Prix Unitaire (€)</span>
-                                        <Input type="number" step="0.01" bind:value={currentProduct.priceForKfetier} class="font-bold h-10" />
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Chemin Image</span>
+                            <div 
+                                class="border-2 border-dashed border-gray-200 rounded-xl p-4 transition-colors hover:bg-gray-50 text-center cursor-pointer"
+                                ondragover={(e) => e.preventDefault()}
+                                ondrop={handleDrop}
+                                role="region"
+                                aria-label="Zone de dépôt d'image"
+                            >
+                                {#if currentProduct.imagePath}
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <img src={currentProduct.imagePath} alt="Aperçu" class="w-10 h-10 object-cover rounded shadow" />
+                                        <span class="text-xs truncate font-mono text-gray-500">{currentProduct.imagePath}</span>
                                     </div>
-                                    <div class="space-y-1">
-                                        <span class="text-[8px] font-bold text-gray-400 uppercase">Prix Lot de 3 (€)</span>
-                                        <Input type="number" step="0.01" bind:value={currentProduct.priceForThreeKfetier} class="font-bold h-10" />
-                                    </div>
-                                </div>
+                                {:else}
+                                    <p class="text-[10px] text-gray-400 uppercase font-black">Glissez une image ici</p>
+                                {/if}
+                                <Input bind:value={currentProduct.imagePath} class="h-8 font-mono text-[10px]" placeholder="Ex: static/img.png" />
                             </div>
                         </div>
                     </div>
 
-                    <div class="flex gap-4 pt-6">
-                        <button 
-                            onclick={() => isEditing = false}
-                            class="flex-1 py-4 px-6 border border-gray-200 rounded-2xl font-black text-gray-500 hover:bg-gray-50 transition-all uppercase tracking-widest text-xs"
-                        >
-                            Annuler
-                        </button>
-                        <button 
-                            onclick={saveProduct}
-                            class="flex-[2] py-4 px-6 bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 uppercase tracking-widest text-xs"
-                        >
-                            {currentProduct.id ? 'Valider les modifications' : 'Créer le produit'}
-                        </button>
+                    <!-- Côté Tarifs -->
+                    <div class="bg-gray-50 p-6 rounded-2xl space-y-6">
+                        <div class="space-y-4">
+                            <h4 class="text-indigo-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span> Standard
+                            </h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <span class="text-[8px] font-bold text-gray-400 uppercase">Prix Unitaire (€)</span>
+                                    <Input type="number" step="0.01" bind:value={currentProduct.price} class="font-bold h-10" />
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="text-[8px] font-bold text-gray-400 uppercase">Prix Lot de 3 (€)</span>
+                                    <Input type="number" step="0.01" bind:value={currentProduct.priceForThree} class="font-bold h-10" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <h4 class="text-purple-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span> Kfetier
+                            </h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <span class="text-[8px] font-bold text-gray-400 uppercase">Prix Unitaire (€)</span>
+                                    <Input type="number" step="0.01" bind:value={currentProduct.priceForKfetier} class="font-bold h-10" />
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="text-[8px] font-bold text-gray-400 uppercase">Prix Lot de 3 (€)</span>
+                                    <Input type="number" step="0.01" bind:value={currentProduct.priceForThreeKfetier} class="font-bold h-10" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <div class="flex gap-4 pt-6">
+                    <Button 
+                        variant="ghost"
+                        onclick={() => isEditing = false}
+                        class="flex-1 py-4 px-6 h-auto border border-gray-200 rounded-2xl font-black text-gray-500 hover:bg-gray-50 transition-all uppercase tracking-widest text-[10px]"
+                    >
+                        Annuler
+                    </Button>
+                    <Button 
+                        variant="ghost"
+                        onclick={saveProduct}
+                        class="flex-[2] py-4 px-6 bg-indigo-600 h-auto text-white rounded-2xl font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:text-white transition-all active:scale-95 uppercase tracking-widest text-[10px]"
+                    >
+                        {currentProduct.id ? 'Valider les modifications' : 'Créer le produit'}
+                    </Button>
+                </div>
             </div>
-        </div>
-    {/if}
+        </Dialog.Content>
+    </Dialog.Root>
 </div>
