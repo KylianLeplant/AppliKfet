@@ -1,3 +1,2 @@
-- rajouter drag and drop sur gestion de produits/catégorie pour l'image
 - supprime page d'accueil?
-- bouton supprimer client (le mettre dans catégorie ancien)
+- bouton supprimer client (le mettre dans catégorie ancien)    

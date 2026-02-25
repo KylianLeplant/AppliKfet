@@ -11,6 +11,7 @@
     import { Toaster } from "$lib/components/ui/sonner/index.js";
     import { toast } from "svelte-sonner";
     import { Button } from "$lib/components/ui/button";
+    import Particles from "$lib/components/particles/Particles.svelte";
     
     const SAVED_VIEW_KEY = "app_current_view";
     
@@ -80,8 +81,9 @@
 </script>
 
 <main
-	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-8 select-none"
+	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-8 select-none relative"
 >
+    <Particles className="absolute inset-0 pointer-events-none" refresh={true} />
     <!-- Barre de Navigation Supérieure -->
     <nav class="absolute top-0 left-0 right-0 p-4 bg-white/10 flex justify-between items-center backdrop-blur-md z-40">
         <div class="flex gap-4">
@@ -134,7 +136,8 @@
     <Toaster richColors position="top-right" />
 
     <!-- Contenu de la Page -->
-    <div class="w-full max-w-7xl mt-12">
+    <div class="w-full max-w-7xl mt-12 relative z-10">
+
         {#if currentView === "home"}
             <div class="bg-white/90 p-12 rounded-3xl shadow-2xl text-center max-w-2xl mx-auto border border-white/40">
                 <h1 class="text-5xl font-extrabold mb-6 text-gray-800 tracking-tight">AppliKfet</h1>
