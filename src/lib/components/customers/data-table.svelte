@@ -4,15 +4,18 @@
     getCoreRowModel, 
     getFilteredRowModel, 
     getSortedRowModel,
+    getPaginationRowModel,
     type ColumnFiltersState,
-    type SortingState
+    type SortingState,
+    type PaginationState 
   } from "@tanstack/table-core";
   import {
     createSvelteTable,
     FlexRender,
   } from "$lib/components/ui/data-table/index.js";
   import * as Table from "$lib/components/ui/table/index.js";
- 
+  import { Button } from "$lib/components/ui/button";
+  
   type DataTableProps<TData, TValue> = {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
@@ -30,7 +33,8 @@
   }: DataTableProps<TData, TValue> = $props();
  
   let sorting = $state<SortingState>([]);
-
+  let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 50 });
+  
   const table = createSvelteTable({
     get data() {
       return data;
@@ -39,6 +43,7 @@
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     onColumnFiltersChange: (updater) => {
       if (typeof updater === "function") {
         columnFilters = updater(columnFilters);
@@ -53,13 +58,23 @@
         sorting = updater;
       }
     },
+    onPaginationChange: (updater) => {
+        if (typeof updater === "function") {
+            pagination = updater(pagination);
+        } else {
+            pagination = updater;
+        }
+    },
     state: {
       get columnFilters() {
         return columnFilters;
       },
       get sorting() {
         return sorting;
-      }
+      },
+      get pagination() {
+          return pagination;
+      },
     }
   });
 </script>
@@ -110,4 +125,26 @@
       {/each}
     </Table.Body>
   </Table.Root>
+</div>
+<div class="flex items-center justify-end space-x-2 py-4">
+    <div class="flex-1 text-sm text-muted-foreground text-center">
+        Page {table.getState().pagination.pageIndex + 1} sur{" "}
+        {table.getPageCount()}
+    </div>
+    <Button
+        variant="outline"
+        size="sm"
+        onclick={() => table.previousPage()}
+        disabled={!table.getCanPreviousPage()}
+    >
+        Précédent
+    </Button>
+    <Button
+        variant="outline"
+        size="sm"
+        onclick={() => table.nextPage()}
+        disabled={!table.getCanNextPage()}
+    >
+        Suivant
+    </Button>
 </div>
