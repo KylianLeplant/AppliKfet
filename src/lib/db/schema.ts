@@ -1,6 +1,5 @@
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { type InferSelectModel, type InferInsertModel, sql } from "drizzle-orm";
-import { image } from "@tauri-apps/api";
 
 export const categories = sqliteTable("categories", {
     id: integer("id").primaryKey({ autoIncrement: true }),

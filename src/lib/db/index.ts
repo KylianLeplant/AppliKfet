@@ -51,9 +51,9 @@ export async function initDb() {
         await db.run(sql`
         CREATE TABLE IF NOT EXISTS categories (
           "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-          "name" TEXT NOT NULL,
+          "name" TEXT NOT NULL UNIQUE,
           "dept" TEXT NOT NULL,
-          "year" TEXT NOT NULL,
+          "year" TEXT,
           "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
           "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP
         );

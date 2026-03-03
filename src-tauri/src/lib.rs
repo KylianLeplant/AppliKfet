@@ -1,6 +1,6 @@
 mod commands;
 mod db; 
-use commands::default::{read, write, save_image};
+use commands::default::{read, write, save_image, read_old_db};
 use db::{execute_single_sql, execute_batch_sql, Database, AppState};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -38,6 +38,7 @@ pub fn run() {
             read, 
             write,
             save_image,
+            read_old_db,
             execute_single_sql, 
             execute_batch_sql
         ])

@@ -1,5 +1,37 @@
 use super::errors::Error;
 use std::fs;
+use serde::{Deserialize, Serialize};
+use sqlx::{FromRow, Pool, Sqlite, Row};
+use sqlx::sqlite::SqlitePoolOptions;
+
+#[derive(Serialize, FromRow)]
+pub struct OldClient {
+    id: i64,
+    nom: Option<String>,
+    prenom: Option<String>,
+    dette: Option<f64>,
+    promo: Option<String>,
+    droit: Option<String>,
+}
+
+#[tauri::command]
+pub async fn read_old_db(path: String) -> Result<Vec<OldClient>, String> {
+    if !std::path::Path::new(&path).exists() {
+        return Err(format!("File not found: {}", path));
+    }
+
+    let pool = SqlitePoolOptions::new()
+        .connect(&format!("sqlite://{}", path))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let clients = sqlx::query_as::<_, OldClient>("SELECT id, nom, prenom, dette, promo, droit FROM Client")
+        .fetch_all(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(clients)
+}
 
 #[tauri::command]
 pub fn read(path: String) -> Result<String, Error> {
