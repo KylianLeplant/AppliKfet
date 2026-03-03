@@ -19,6 +19,7 @@
   let amountToAdd = $state(0);
   let allCategories = $state<Category[]>([]);
   let refreshCount = $state(0);
+  let searchTerm = $state("");
   
   // Form state
   let editFirstName = $state("");
@@ -287,7 +288,12 @@
         </Sheet.Root>
     </div>
 
-    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-        <CustomersTable bind:selectedCustomer refreshTrigger={refreshCount} />
+    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 space-y-4">
+        <Input
+          placeholder="Rechercher nom/prénom..."
+          class="h-10 w-full"
+          bind:value={searchTerm}
+        />
+        <CustomersTable bind:selectedCustomer refreshTrigger={refreshCount} bind:searchTerm />
     </div>
 </div>

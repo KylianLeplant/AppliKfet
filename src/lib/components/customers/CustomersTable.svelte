@@ -10,10 +10,12 @@
 
   let { 
     selectedCustomer = $bindable(null),
-    refreshTrigger = 0 
+    refreshTrigger = 0,
+    searchTerm = $bindable("")
   }: { 
     selectedCustomer?: Customer | null,
-    refreshTrigger?: number 
+    refreshTrigger?: number,
+    searchTerm?: string
   } = $props();
 
   let customers: Customer[] = $state([]);
@@ -23,6 +25,15 @@
     { id: "categoryName", value: true }
   ]);
   let selectedRowId = $state<string | null>(null);
+
+  let filteredCustomers = $derived(
+    searchTerm 
+      ? customers.filter(c => 
+          (c.firstName?.toLowerCase() ?? "").includes(searchTerm.toLowerCase()) ||
+          (c.lastName?.toLowerCase() ?? "").includes(searchTerm.toLowerCase())
+        )
+      : customers
+  );
 
   $effect(() => {
     if (!selectedCustomer) {
@@ -145,7 +156,7 @@
   </div>
 
   <DataTable 
-    data={customers} 
+    data={filteredCustomers} 
     {columns} 
     bind:columnFilters 
     bind:selectedRowId
