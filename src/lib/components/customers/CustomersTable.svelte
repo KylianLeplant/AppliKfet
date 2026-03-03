@@ -19,7 +19,9 @@
   let customers: Customer[] = $state([]);
   let depts: string[] = $state([]);
   let years: string[] = $state([]);
-  let columnFilters = $state<ColumnFiltersState>([]);
+  let columnFilters = $state<ColumnFiltersState>([
+    { id: "categoryName", value: true }
+  ]);
   let selectedRowId = $state<string | null>(null);
 
   $effect(() => {
@@ -43,7 +45,7 @@
   function handleFilterChange(columnId: string, value: any) {
     const existing = columnFilters.find(f => f.id === columnId);
     
-    if (value === "all" || value === false && columnId === "isKfetier") {
+    if (value === "all" || (value === false && ["isKfetier", "categoryName"].includes(columnId))) {
       columnFilters = columnFilters.filter(f => f.id !== columnId);
     } else {
       if (existing) {
@@ -55,6 +57,7 @@
   }
 
   let isKfetierFilter = $state(false);
+  let isHideSaveFilter = $state(true);
   let selectedDept = $state("all");
   let selectedYear = $state("all");
   
@@ -63,6 +66,11 @@
   function handleKfetierChange(checked: boolean) {
     isKfetierFilter = checked;
     handleFilterChange("isKfetier", checked ? true : false);
+  }
+
+  function handleHideSaveChange(checked: boolean) {
+    isHideSaveFilter = checked;
+    handleFilterChange("categoryName", checked ? true : false);
   }
 
   function handleDeptChange(value: string) {
@@ -89,6 +97,18 @@
         />
         <Label for="kfetier-filter" class="text-sm font-medium cursor-pointer">
           Kfétiers uniquement
+        </Label>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <Checkbox 
+          id="hidesave-filter"
+          checked={isHideSaveFilter}
+          onCheckedChange={handleHideSaveChange}
+          class="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+        />
+        <Label for="hidesave-filter" class="text-sm font-medium cursor-pointer">
+          Masquer Save
         </Label>
       </div>
 

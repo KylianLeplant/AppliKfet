@@ -153,6 +153,8 @@ export async function getCustomers() {
       account: customers.account,
       isKfetier: customers.isKfetier,
       categoryId: customers.categoryId,
+      createdAt: customers.createdAt,
+      updatedAt: customers.updatedAt,
       dept: categories.dept,
       year: categories.year,
       categoryName: categories.name

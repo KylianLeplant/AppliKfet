@@ -12,6 +12,19 @@ export const columns: ColumnDef<Customer>[] = [
     accessorKey: "firstName",
     header: ({ column }) => renderComponent(SortButton, { column, title: "Prénom" }),
   },
+  {
+    accessorKey: "categoryName",
+    header: "Catégorie",
+    cell: ({ row }) => {
+      return row.original.categoryName ?? "-";
+    },
+    filterFn: (row, id, value) => {
+      if (value) {
+        return row.getValue(id) !== "Save";
+      }
+      return true;
+    }
+  },
   // Colonnes ajoutées pour Category
   {
     accessorKey: "dept",
