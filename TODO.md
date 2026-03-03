@@ -1,8 +1,6 @@
 - supprime page d'accueil?
 - bouton supprimer client (le mettre dans catégorie ancien)    
-- rajouter pagination sur la page client
 - barre  de recherche, nom des gens, si un seul résultat = > autoselection du resultat pour passert commande
 - retirer argent
 - sauvegarde
-- modifier affichage null (0 c'est pas beau)
-- permettre de masquer les anciens
+- responsive et design (opus 4.6)

@@ -41,6 +41,15 @@
     }
   });
 
+  $effect(() => {
+    const normalizedSearch = searchTerm.trim();
+
+    if (normalizedSearch.length > 0 && filteredCustomers.length === 1) {
+      selectedCustomer = filteredCustomers[0];
+      selectedRowId = "0";
+    }
+  });
+
   async function loadData() {
     customers = await getCustomers();
     depts = await getDepts();

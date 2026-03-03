@@ -7,16 +7,25 @@ export const columns: ColumnDef<Customer>[] = [
   {
     accessorKey: "lastName",
     header: ({ column }) => renderComponent(SortButton, { column, title: "Nom" }),
+    cell: ({ getValue }) => {
+      const value = getValue();
+      return (value === null || value === undefined || value === "") ? "-" : value;
+    },
   },
   {
     accessorKey: "firstName",
     header: ({ column }) => renderComponent(SortButton, { column, title: "Prénom" }),
+    cell: ({ getValue }) => {
+      const value = getValue();
+      return (value === null || value === undefined || value === "") ? "-" : value;
+    },
   },
   {
     accessorKey: "categoryName",
     header: "Catégorie",
     cell: ({ row }) => {
-      return row.original.categoryName ?? "-";
+      const value = row.original.categoryName;
+      return (value === null || value === undefined || value === "") ? "-" : value;
     },
     filterFn: (row, id, value) => {
       if (value) {
@@ -30,7 +39,8 @@ export const columns: ColumnDef<Customer>[] = [
     accessorKey: "dept",
     header: "Département",
     cell: ({ row }) => {
-      return row.original.dept ?? "-";
+      const value = row.original.dept;
+      return (value === null || value === undefined || value === "") ? "-" : value;
     },
     filterFn: "equals"
   },
@@ -38,7 +48,8 @@ export const columns: ColumnDef<Customer>[] = [
     accessorKey: "year",
     header: "Année",
     cell: ({ row }) => {
-      return row.original.year ?? "-";
+      const year = row.original.year;
+      return !year || year === "0" || year === "" ? "-" : year;
     },
     filterFn: "equals"
   },

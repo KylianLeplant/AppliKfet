@@ -1,10 +1,11 @@
 /// <reference types="bun" />
 import { Database } from "bun:sqlite";
 import { drizzle } from "drizzle-orm/bun-sqlite";
-import { customers, categories } from "../src/lib/db/schema";
+import { customers, categories, productsCategories, products } from "../src/lib/db/schema";
 import { join } from "path";
 import { existsSync } from "fs";
 import { homedir } from "os";
+
 
 // 1. Locate the OLD database
 // Priority: Command line arg > Env var > Default
@@ -210,7 +211,62 @@ async function runMigration() {
         }
     }
 
+    seedProducts();
+
     console.log(`\n✅ Done! Migrated ${newCustomers.length} clients.`);
+}
+
+async function seedProducts() {
+    console.log("🌱 Seeding products...");
+    try {
+        const existingProductsCats = await db.select().from(productsCategories);
+        if (existingProductsCats.length === 0) {
+            console.log("Seeding sample product categories...");
+            const sampleProductCategories = [
+                { name: "Boissons", imagePath: "static/products_categories/boissons.png" },
+                { name: "Snacks", imagePath: "static/products_categories/snacks.webp" },
+                { name: "Midi", imagePath: "static/products_categories/pizza.webp" },
+                { name: "St-Michel", imagePath: "static/products_categories/st_michel.png" },
+                { name: "suppléments", imagePath: null }
+            ];
+            for (const cat of sampleProductCategories) {
+                await db.insert(productsCategories).values(cat);
+            }
+            console.log("Product categories seeded OK.");
+        }
+    } catch (e) {
+        console.error("❌ Seed Product Categories error:", e);
+    }
+
+    try {
+        const existingProducts = await db.select().from(products);
+        if (existingProducts.length === 0) {
+            console.log("Seeding sample products...");
+            const allProductCats: any[] = await db.select().from(productsCategories);
+            const sampleProducts = [
+                { name: "Breizh-Cola", price: 1.5, priceForThree: 4.0, priceForKfetier: 1.2, priceForThreeKfetier: 3.5, categoryId: allProductCats.find(c => c.name === "Boissons")?.id, imagePath: "static/products/breizh_cola.jpeg" },
+                { name: "Pizza", price: 3, priceForThree: null, priceForKfetier: 2.8, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Midi")?.id, imagePath: "static/products/pizza.webp" },
+                { name: "Croques-monsieur x2", price: 1.6, priceForThree: null, priceForKfetier: 1.4, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Midi")?.id, imagePath: "static/products/croque_monsieur.png" },
+                { name: "Croques-monsieur x4", price: 3, priceForThree: null, priceForKfetier: 2.8, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Midi")?.id, imagePath: "static/products/croque_monsieur.png" },
+                { name: "Eau Minérale", price: 0.5, priceForThree: null, priceForKfetier: 0.5, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Boissons")?.id, imagePath: "static/products/eau.jpg" },
+                { name: "Madeleine nature", price: 0.2, priceForThree: 0.5, priceForKfetier: 0.15, priceForThreeKfetier: 0.45, categoryId: allProductCats.find(c => c.name === "St-Michel")?.id, imagePath: "static/products/madeleines.jfif" },
+                { name: "Madeleines chocolat", price: 0.3, priceForThree: 0.8, priceForKfetier: 0.25, priceForThreeKfetier: 0.7, categoryId: allProductCats.find(c => c.name === "St-Michel")?.id, imagePath: "static/products/madeleines choco.jpg" },
+                { name: "Brownies", price: 2.0, priceForThree: null, priceForKfetier: 1.5, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "St-Michel")?.id, imagePath: "static/products/brownies.jpg" },
+                { name: "Kinder Bueno", price: 0.8, priceForThree: null, priceForKfetier: 0.7, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Snacks")?.id, imagePath: "static/products/kinder bueno.webp" },
+                { name: "M&M's", price: 0.6, priceForThree: null, priceForKfetier: 0.5, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Snacks")?.id, imagePath: "static/products/M&Ms.jpg" },
+                { name: "Barre de céréales", price: 1.0, priceForThree: null, priceForKfetier: 0.8, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Snacks")?.id, imagePath: null },
+                { name: "Supplément poivrons", price: 0.5, priceForThree: null, priceForKfetier: 0.4, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "suppléments")?.id, imagePath: null },
+                { name: "Supplément oignons", price: 0.5, priceForThree: null, priceForKfetier: 0.4, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "suppléments")?.id, imagePath: null },
+                { name: "Supplément champignons", price: 0.5, priceForThree: null, priceForKfetier: 0.4, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "suppléments")?.id, imagePath: null }
+            ];
+            for (const prod of sampleProducts) {
+                await db.insert(products).values(prod);
+            }
+            console.log("Products seeded OK.");
+        }
+    } catch (e) {
+        console.error("❌ Seed Products error:", e);
+    }
 }
 
 runMigration().catch(e => console.error(e));

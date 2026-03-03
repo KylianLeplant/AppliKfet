@@ -1,7 +1,7 @@
 use super::errors::Error;
 use std::fs;
-use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, Pool, Sqlite, Row};
+use serde::Serialize;
+use sqlx::FromRow;
 use sqlx::sqlite::SqlitePoolOptions;
 
 #[derive(Serialize, FromRow)]
@@ -17,11 +17,11 @@ pub struct OldClient {
 #[tauri::command]
 pub async fn read_old_db(path: String) -> Result<Vec<OldClient>, String> {
     if !std::path::Path::new(&path).exists() {
-        return Err(format!("File not found: {}", path));
+        return Err(format!("File not found: {path}"));
     }
 
     let pool = SqlitePoolOptions::new()
-        .connect(&format!("sqlite://{}", path))
+        .connect(&format!("sqlite://{path}"))
         .await
         .map_err(|e| e.to_string())?;
 
@@ -47,7 +47,7 @@ pub fn write(path: String, contents: String) -> Result<(), Error> {
 }
 
 #[tauri::command]
-pub fn save_image(folder: String, filename: String, content: Vec<u8>) -> Result<String, String> {
+pub fn save_image(folder: &str, filename: &str, content: Vec<u8>) -> Result<String, String> {
     // Try to find the static directory relative to where we are running
     // In dev: likely need to go up one level from src-tauri
     // But let's check current dir first
@@ -64,25 +64,25 @@ pub fn save_image(folder: String, filename: String, content: Vec<u8>) -> Result<
     }
     
     if !target_dir.join("static").exists() {
-        return Err(format!("Impossible de trouver le dossier 'static' depuis {:?}", current_dir));
+        return Err(format!("Impossible de trouver le dossier 'static' depuis {}", current_dir.display()));
     }
     
-    let folder_path = target_dir.join("static").join(&folder);
+    let folder_path = target_dir.join("static").join(folder);
     
     // Create folder if not exists (though user said it should be associated folder, assume exists or create)
     if !folder_path.exists() {
          fs::create_dir_all(&folder_path).map_err(|e| e.to_string())?;
     }
     
-    let file_path = folder_path.join(&filename);
+    let file_path = folder_path.join(filename);
     
     if file_path.exists() {
-        return Err(format!("Le fichier '{}' existe déjà dans le dossier '{}'", filename, folder));
+        return Err(format!("Le fichier '{filename}' existe déjà dans le dossier '{folder}'"));
     }
     
     fs::write(&file_path, content).map_err(|e| e.to_string())?;
     
     // Return relative path including "static/" if that's what's expected for display
     // e.g. "static/products/image.png"
-    Ok(format!("static/{}/{}", folder, filename))
+    Ok(format!("static/{folder}/{filename}"))
 }
