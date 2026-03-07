@@ -16,7 +16,9 @@
   let selectedCustomer = $state<Customer | null>(null);
   let isEditing = $state(false);
   let isAddingMoney = $state(false);
+  let isRemovingMoney = $state(false);
   let amountToAdd = $state(0);
+  let amountToRemove = $state(0);
   let allCategories = $state<Category[]>([]);
   let refreshCount = $state(0);
   let searchTerm = $state("");
@@ -115,6 +117,25 @@
         toast.error("Erreur lors de l'ajout d'argent");
     }
   }
+
+  async function handleRemoveMoney() {
+    if (!selectedCustomer || amountToRemove <= 0) return;
+    try {
+        await addMoneyToCustomer(selectedCustomer.id, -amountToRemove);
+        if (selectedCustomer.account !== null) {
+            selectedCustomer.account -= amountToRemove;
+        }
+        toast.success(`Solde mis à jour`, {
+            description: `${amountToRemove}€ retirés du compte de ${selectedCustomer.firstName}`
+        });
+        isRemovingMoney = false;
+        amountToRemove = 0;
+        refreshCount++;
+    } catch (e) {
+        console.error("Error removing money:", e);
+        toast.error("Erreur lors du retrait d'argent");
+    }
+  }
 </script>
 
 <div class="flex flex-col gap-6 w-full max-w-6xl">
@@ -151,7 +172,14 @@
                         onclick={() => isAddingMoney = true}
                         class="bg-emerald-600/50 hover:bg-emerald-600/80 text-white font-bold py-3 px-6 h-auto rounded-xl shadow-lg border border-emerald-200/20 backdrop-blur-sm transition-all animate-in fade-in zoom-in-95 hover:text-white"
                     >
-                        💰 Ajouter de l'argent
+                        Ajouter de l'argent
+                    </Button>
+                    <Button 
+                        variant="ghost"
+                        onclick={() => isRemovingMoney = true}
+                        class="bg-rose-600/50 hover:bg-rose-600/80 text-white font-bold py-3 px-6 h-auto rounded-xl shadow-lg border border-rose-200/20 backdrop-blur-sm transition-all animate-in fade-in zoom-in-95 hover:text-white"
+                    >
+                        Retirer de l'argent
                     </Button>
                 {/if}
             </div>
@@ -201,6 +229,57 @@
                                 class="flex-1 py-3 px-4 bg-emerald-600 text-white rounded-xl font-bold h-auto shadow-lg shadow-emerald-200 hover:bg-emerald-700 hover:text-white transition-all active:scale-95 uppercase tracking-widest text-[10px]"
                             >
                                 Confirmer (+{amountToAdd}€)
+                            </Button>
+                        </div>
+                    </Card.Content>
+                </Card.Root>
+            </Dialog.Content>
+        </Dialog.Root>
+
+        <Dialog.Root bind:open={isRemovingMoney}>
+            <Dialog.Content class="sm:max-w-[425px] p-0 overflow-hidden border-rose-100 rounded-2xl">
+                <Card.Root class="w-full border-0 shadow-none">
+                    <Card.Header class="text-black">
+                        <Card.Title class="text-2xl font-black uppercase tracking-tighter">Retirer du Solde</Card.Title>
+                        <Card.Description class="text-rose-100 font-bold">
+                            Client : {selectedCustomer?.firstName} {selectedCustomer?.lastName}
+                        </Card.Description>
+                    </Card.Header>
+                    <Card.Content class="space-y-6">
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <span class="text-xs font-black text-gray-400 uppercase tracking-widest">Solde actuel</span>
+                                <span class="text-2xl font-black text-gray-800">{selectedCustomer?.account?.toFixed(2)} €</span>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <Label for="amount-remove" class="text-xs font-black text-gray-400 uppercase tracking-widest block">Montant à retirer (€)</Label>
+                                <Input 
+                                    id="amount-remove" 
+                                    type="number" 
+                                    bind:value={amountToRemove} 
+                                    placeholder="Ex: 5.00" 
+                                    class="text-xl font-bold h-14 bg-rose-50/30 border-rose-100 focus:ring-rose-500" 
+                                    min="0.01" 
+                                    step="0.01"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <Button 
+                                variant="ghost"
+                                onclick={() => isRemovingMoney = false}
+                                class="flex-1 py-3 px-4 border border-gray-200 rounded-xl font-bold text-gray-500 hover:bg-gray-50 h-auto transition-all uppercase tracking-widest text-[10px]"
+                            >
+                                Annuler
+                            </Button>
+                            <Button 
+                                variant="ghost"
+                                onclick={handleRemoveMoney}
+                                class="flex-1 py-3 px-4 bg-rose-600 text-white rounded-xl font-bold h-auto shadow-lg shadow-rose-200 hover:bg-rose-700 hover:text-white transition-all active:scale-95 uppercase tracking-widest text-[10px]"
+                            >
+                                Confirmer (-{amountToRemove}€)
                             </Button>
                         </div>
                     </Card.Content>

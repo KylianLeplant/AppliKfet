@@ -1,6 +1,4 @@
 - supprime page d'accueil?
-- bouton supprimer client (le mettre dans catégorie ancien)    
-- barre  de recherche, nom des gens, si un seul résultat = > autoselection du resultat pour passert commande
-- retirer argent
+- bouton supprimer client (le mettre dans catégorie ancien)  
 - sauvegarde
 - responsive et design (opus 4.6)

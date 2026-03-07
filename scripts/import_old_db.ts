@@ -114,7 +114,7 @@ async function seedCategories() {
          {name: "MMA sans classe", dept: "MMA", year: null},
          {name: "DMS sans classe", dept: "DMS", year: null},
          {name: "Anciens élèves", dept: "Anciens élèves", year: null},
-         {name: "Peip sans classe", dept: "Peip", year: null},
+         {name: "PeiP sans classe", dept: "PeiP", year: null},
          {name: "KFetier", dept: "KFetier", year: null},
          {name: "Save", dept: "Save", year: null}
     ];
