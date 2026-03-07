@@ -27,7 +27,7 @@
     }
 </script>
 
-<div class="space-y-4">
+<div class="space-y-4 px-2 sm:px-4 md:px-0">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
         <div>
             <h1 class="text-2xl sm:text-3xl font-bold text-white">{productCategory.name}</h1>
@@ -41,7 +41,7 @@
         {/if}
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 pt-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4 pt-2 sm:pt-4">
         {#each productsResult as product}
             <ItemCard 
                 name={product.name} 

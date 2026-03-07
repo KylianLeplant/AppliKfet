@@ -20,7 +20,7 @@
     {onclick} 
     onkeydown={handleKeyDown}
     role="button"
-    tabindex="0"
+    tabindex={0}
     class="relative overflow-hidden cursor-pointer aspect-square w-full bg-white transition-transform hover:scale-[1.02] active:scale-95 focus:ring-2 focus:ring-primary focus:outline-none border shadow-sm p-0 flex-none gap-0"
 >
     {#if imagePath}
@@ -30,10 +30,10 @@
     {:else}
         <div class="absolute inset-0 w-full h-full bg-white"></div>
     {/if}
-    <div class="bottom-0 w-full bg-black/60 text-white text-center py-2 absolute backdrop-blur-md z-10 transition-all group-hover:bg-black/80">
-        <h3 class="font-bold text-sm px-2 truncate">{name}</h3>
+    <div class="bottom-0 w-full bg-black/60 text-white text-center py-1.5 sm:py-2 absolute backdrop-blur-md z-10 transition-all group-hover:bg-black/80">
+        <h3 class="font-bold text-xs sm:text-sm px-1 sm:px-2 truncate leading-tight">{name}</h3>
         {#if subtitle}
-            <p class="text-xs text-indigo-300 font-mono font-bold">{subtitle}</p>
+            <p class="text-[10px] sm:text-xs text-indigo-300 font-mono font-bold mt-0.5">{subtitle}</p>
         {/if}
     </div>
 </Card>

@@ -162,18 +162,18 @@
                 />
             </div>
         {:else if currentView === "products"}
-            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div class="flex justify-between items-center mb-6">
+            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500 px-2 sm:px-4 md:px-0">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 sm:mb-6">
                     <Button 
                         variant="ghost"
                         onclick={() => currentView = "catalog"}
-                        class="text-white/80 hover:text-white hover:bg-white/10 flex items-center gap-2 font-bold"
+                        class="text-white/80 hover:text-white hover:bg-white/10 flex items-center gap-2 font-bold text-sm sm:text-base py-2 px-3 sm:px-4 h-auto rounded-lg"
                     >
-                        ← Retour au catalogue
+                        ← <span class="hidden sm:inline">Retour au catalogue</span><span class="sm:hidden">Retour</span>
                     </Button>
                     {#if selectedCustomerOrder}
-                        <div class="bg-white/20 px-4 py-2 rounded-lg text-white font-semibold">
-                            Commande pour : {selectedCustomerOrder.firstName} {selectedCustomerOrder.lastName}
+                        <div class="bg-white/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-white font-semibold text-xs sm:text-sm">
+                            <span class="hidden sm:inline">Commande pour :</span> {selectedCustomerOrder.firstName} {selectedCustomerOrder.lastName}
                         </div>
                     {/if}
                 </div>
