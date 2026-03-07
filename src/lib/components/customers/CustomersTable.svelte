@@ -105,9 +105,9 @@
 </script>
 
 <div class="space-y-4">
-  <div class="flex items-center justify-between">
-    <h1 class="text-2xl font-bold">Clients</h1>
-    <div class="flex items-center gap-6">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <h1 class="text-xl sm:text-2xl font-bold">Clients</h1>
+    <div class="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3 sm:gap-4 lg:gap-6">
       <div class="flex items-center gap-2">
         <Checkbox 
           id="kfetier-filter"
@@ -115,7 +115,7 @@
           onCheckedChange={handleKfetierChange}
           class="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
         />
-        <Label for="kfetier-filter" class="text-sm font-medium cursor-pointer">
+        <Label for="kfetier-filter" class="text-xs sm:text-sm font-medium cursor-pointer">
           Kfétiers uniquement
         </Label>
       </div>
@@ -127,15 +127,15 @@
           onCheckedChange={handleHideSaveChange}
           class="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
         />
-        <Label for="hidesave-filter" class="text-sm font-medium cursor-pointer">
+        <Label for="hidesave-filter" class="text-xs sm:text-sm font-medium cursor-pointer">
           Masquer Save
         </Label>
       </div>
 
       <div class="flex items-center gap-2">
-        <span class="text-sm font-medium">Département :</span>
+        <span class="text-xs sm:text-sm font-medium">Département :</span>
         <Select.Root type="single" bind:value={selectedDept} onValueChange={handleDeptChange}>
-          <Select.Trigger class="h-9 w-40">
+          <Select.Trigger class="h-8 sm:h-9 w-32 sm:w-40 text-xs sm:text-sm">
             {selectedDept === "all" ? "Tous" : selectedDept}
           </Select.Trigger>
           <Select.Content>
@@ -148,9 +148,9 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <span class="text-sm font-medium">Année :</span>
+        <span class="text-xs sm:text-sm font-medium">Année :</span>
         <Select.Root type="single" bind:value={selectedYear} onValueChange={handleYearChange}>
-          <Select.Trigger class="h-9 w-40">
+          <Select.Trigger class="h-8 sm:h-9 w-32 sm:w-40 text-xs sm:text-sm">
             {selectedYear === "all" ? "Toutes" : selectedYear}
           </Select.Trigger>
           <Select.Content>

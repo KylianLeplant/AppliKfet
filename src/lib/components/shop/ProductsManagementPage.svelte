@@ -127,33 +127,33 @@
     }
 </script>
 
-<div class="space-y-6 w-full animate-in fade-in duration-500">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div class="space-y-4 sm:space-y-6 w-full animate-in fade-in duration-500 px-2 sm:px-0">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <div>
-            <h1 class="text-4xl font-black text-white uppercase tracking-tighter">Gestion des Produits</h1>
-            <p class="text-white/70 font-bold uppercase tracking-widest text-xs">Catalogue et Tarification</p>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">Gestion des Produits</h1>
+            <p class="text-white/70 font-bold uppercase tracking-widest text-[10px] sm:text-xs">Catalogue et Tarification</p>
         </div>
         <Button 
             variant="ghost"
             onclick={startAdd}
-            class="bg-white text-indigo-600 px-6 py-3 h-auto rounded-xl font-black shadow-lg hover:shadow-white/20 hover:bg-white hover:text-indigo-600 transition-all active:scale-95 uppercase tracking-widest text-sm"
+            class="bg-white text-indigo-600 px-4 sm:px-6 py-2 sm:py-3 h-auto text-xs sm:text-sm rounded-xl font-black shadow-lg hover:shadow-white/20 hover:bg-white hover:text-indigo-600 transition-all active:scale-95 uppercase tracking-widest"
         >
             Ajouter un produit
         </Button>
     </div>
 
     <!-- Filtres et Recherche -->
-    <div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20">
+    <div class="bg-white/10 backdrop-blur-md p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/20">
         <Input 
             type="text" 
             placeholder="Rechercher un produit..." 
             bind:value={searchQuery}
-            class="bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:ring-indigo-500 h-12 text-lg font-bold"
+            class="bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:ring-indigo-500 h-10 sm:h-12 text-base sm:text-lg font-bold"
         />
     </div>
 
     <!-- Liste des Produits -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {#each filteredProducts as product}
             <div class="bg-white/95 rounded-2xl overflow-hidden shadow-xl border border-white/20 flex flex-col group">
                 <div class="h-32 bg-gray-100 relative">

@@ -16,15 +16,15 @@
 </script>
 
 <div class="space-y-4">
-    <div class="flex justify-between items-end">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
         <div>
-            <h1 class="text-3xl font-bold text-white">Catalogue</h1>
-            <p class="text-gray-200">Choisissez une catégorie pour votre commande</p>
+            <h1 class="text-2xl sm:text-3xl font-bold text-white">Catalogue</h1>
+            <p class="text-sm sm:text-base text-gray-200">Choisissez une catégorie pour votre commande</p>
         </div>
         {#if customer}
-            <div class="bg-indigo-600/50 backdrop-blur-md px-4 py-2 rounded-lg border border-indigo-200/30">
-                <span class="text-indigo-100 text-sm">Client :</span>
-                <span class="text-white font-bold ml-2">{customer.firstName} {customer.lastName}</span>
+            <div class="bg-indigo-600/50 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-indigo-200/30">
+                <span class="text-indigo-100 text-xs sm:text-sm">Client :</span>
+                <span class="text-white font-bold ml-2 text-sm sm:text-base">{customer.firstName} {customer.lastName}</span>
             </div>
         {/if}
     </div>

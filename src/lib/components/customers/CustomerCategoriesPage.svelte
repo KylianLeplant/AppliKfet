@@ -87,16 +87,16 @@
     }
 </script>
 
-<div class="space-y-6 w-full animate-in fade-in duration-500">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div class="space-y-4 sm:space-y-6 w-full animate-in fade-in duration-500 px-2 sm:px-0">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <div>
-            <h1 class="text-4xl font-black text-white uppercase tracking-tighter">Promotions Clients</h1>
-            <p class="text-white/70 font-bold uppercase tracking-widest text-xs">Gestion des Départs et Années</p>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">Promotions Clients</h1>
+            <p class="text-white/70 font-bold uppercase tracking-widest text-[10px] sm:text-xs">Gestion des Départs et Années</p>
         </div>
         <Button 
             variant="ghost"
             onclick={startAdd}
-            class="bg-white text-indigo-600 px-6 py-3 h-auto rounded-xl font-black shadow-lg hover:shadow-white/20 hover:bg-white hover:text-indigo-600 transition-all active:scale-95 uppercase tracking-widest text-sm"
+            class="bg-white text-indigo-600 px-4 sm:px-6 py-2 sm:py-3 h-auto text-xs sm:text-sm rounded-xl font-black shadow-lg hover:shadow-white/20 hover:bg-white hover:text-indigo-600 transition-all active:scale-95 uppercase tracking-widest"
         >
             Ajouter une Classe
         </Button>

@@ -36,10 +36,10 @@
 
 </script>
 
-<div class="flex flex-col items-center justify-center gap-8 w-full animate-in fade-in zoom-in-95 duration-300">
-    <div class="w-full max-w-2xl bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+<div class="flex flex-col items-center justify-center gap-4 sm:gap-8 w-full animate-in fade-in zoom-in-95 duration-300 px-2 sm:px-4">
+    <div class="w-full max-w-2xl bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-white/20">
         <!-- Header with Product Info -->
-        <div class="relative h-64 bg-gray-200">
+        <div class="relative h-40 sm:h-52 md:h-64 bg-gray-200">
             {#if product.imagePath}
                 <img src={product.imagePath} alt={product.name} class="w-full h-full object-cover" />
             {:else}
@@ -47,9 +47,9 @@
                     <span class="text-64px italic">Pas d'image</span>
                 </div>
             {/if}
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8">
-                <h1 class="text-4xl font-black text-white uppercase tracking-tighter">{product.name}</h1>
-                <p class="text-indigo-300 font-bold">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4 sm:p-6 md:p-8">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">{product.name}</h1>
+                <p class="text-xs sm:text-sm md:text-base text-indigo-300 font-bold">
                     Tarif {customer?.isKfetier ? 'Kfetier' : 'Standard'} : {unitPriceLabel.toFixed(2)} €
                     {#if packPriceLabel && packPriceLabel !== 0}
                         <span class="ml-2 text-white/60">({packPriceLabel.toFixed(2)} € les 3)</span>
@@ -58,12 +58,12 @@
             </div>
         </div>
 
-        <div class="p-8 space-y-8">
+        <div class="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 md:space-y-8">
             <!-- Quantity Selection -->
-            <div class="space-y-6">
+            <div class="space-y-4 sm:space-y-6">
                 <div class="flex justify-between items-end">
-                    <span class="text-sm font-black text-gray-400 uppercase tracking-widest">Quantité souhaitée</span>
-                    <div class="text-6xl font-black text-indigo-600 tabular-nums">
+                    <span class="text-xs sm:text-sm font-black text-gray-400 uppercase tracking-widest">Quantité souhaitée</span>
+                    <div class="text-4xl sm:text-5xl md:text-6xl font-black text-indigo-600 tabular-nums">
                         {quantity}
                     </div>
                 </div>
@@ -83,11 +83,11 @@
                     </div>
                 </div>
             </div>
-            <div class="pt-4">
+            <div class="pt-2 sm:pt-4">
                 <Button 
                     variant="ghost"
                     onclick={() => quantityArr = [1]}
-                    class="mt-4 px-6 py-3 h-auto bg-gray-100 border border-gray-400 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 hover:text-gray-500 transition-all active:scale-95 uppercase tracking-widest text-sm"
+                    class="mt-2 sm:mt-4 px-4 sm:px-6 py-2 sm:py-3 h-auto text-xs sm:text-sm bg-gray-100 border border-gray-400 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 hover:text-gray-500 transition-all active:scale-95 uppercase tracking-widest"
                 >
                     1
                 </Button>
@@ -95,21 +95,21 @@
                     <Button 
                         variant="ghost"
                         onclick={() => quantityArr = [3]}
-                        class="mt-4 ml-4 px-6 py-3 h-auto bg-gray-100 border border-gray-400 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 hover:text-gray-500 transition-all active:scale-95 uppercase tracking-widest text-sm"
+                        class="mt-2 sm:mt-4 ml-2 sm:ml-4 px-4 sm:px-6 py-2 sm:py-3 h-auto text-xs sm:text-sm bg-gray-100 border border-gray-400 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 hover:text-gray-500 transition-all active:scale-95 uppercase tracking-widest"
                     >
                         3
                     </Button>
                 {/if}
             </div>
             <!-- Price Recap -->
-            <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100 flex justify-between items-center">
+            <div class="bg-gray-50 rounded-2xl p-4 sm:p-6 border border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
                 <div>
                     <h2 class="text-xs font-black text-gray-400 uppercase mb-1">Total de la commande</h2>
-                    <p class="text-3xl font-black text-gray-800 tabular-nums">{totalPrice.toFixed(2)} €</p>
+                    <p class="text-2xl sm:text-3xl font-black text-gray-800 tabular-nums">{totalPrice.toFixed(2)} €</p>
                 </div>
                 
                 {#if Math.floor(quantity / 3) > 0 && packPriceLabel && packPriceLabel !== 0}
-                    <div class="text-right">
+                    <div class="text-left sm:text-right">
                         <span class="bg-green-100 text-green-700 text-[10px] font-black px-2 py-1 rounded uppercase">
                             Lot de 3 appliqué
                         </span>
@@ -118,18 +118,18 @@
             </div>
 
             <!-- Actions -->
-            <div class="flex gap-4 pt-4">
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-4">
                 <Button 
                     variant="ghost"
                     onclick={onBack}
-                    class="flex-1 py-4 px-6 h-auto border border-gray-200 rounded-2xl font-black text-gray-500 hover:bg-gray-50 hover:text-gray-500 transition-all active:scale-95 uppercase tracking-widest text-sm"
+                    class="flex-1 py-3 sm:py-4 px-4 sm:px-6 h-auto text-xs sm:text-sm border border-gray-200 rounded-2xl font-black text-gray-500 hover:bg-gray-50 hover:text-gray-500 transition-all active:scale-95 uppercase tracking-widest"
                 >
                     Annuler
                 </Button>
                 <Button 
                     variant="ghost"
                     onclick={() => onConfirm(quantity, totalPrice)}
-                    class="flex-[2] py-4 px-6 h-auto bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:text-white transition-all active:scale-95 uppercase tracking-widest text-sm"
+                    class="flex-1 sm:flex-[2] py-3 sm:py-4 px-4 sm:px-6 h-auto text-xs sm:text-sm bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:text-white transition-all active:scale-95 uppercase tracking-widest"
                 >
                     Confirmer l'ajout
                 </Button>

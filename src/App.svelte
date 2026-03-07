@@ -81,44 +81,44 @@
 </script>
 
 <main
-	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-8 select-none relative"
+	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-2 sm:p-4 md:p-8 select-none relative"
 >
     <Particles className="absolute inset-0 pointer-events-none" refresh={true} />
     <!-- Barre de Navigation Supérieure -->
-    <nav class="absolute top-0 left-0 right-0 p-4 bg-white/10 flex justify-between items-center backdrop-blur-md z-40">
-        <div class="flex gap-4">
+    <nav class="absolute top-0 left-0 right-0 p-2 sm:p-4 bg-white/10 flex flex-wrap justify-between items-center backdrop-blur-md z-40 gap-2">
+        <div class="flex flex-wrap gap-2 sm:gap-4">
             <Button 
                 variant="ghost"
                 onclick={() => currentView = "home"}
-                class="px-4 py-2 h-auto rounded-lg font-bold transition-all {currentView === 'home' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
+                class="px-2 sm:px-4 py-1.5 sm:py-2 h-auto rounded-lg text-xs sm:text-sm font-bold transition-all {currentView === 'home' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
             >
                 Accueil
             </Button>
             <Button 
                 variant="ghost"
                 onclick={() => currentView = "customers"}
-                class="px-4 py-2 h-auto rounded-lg font-bold transition-all {currentView === 'customers' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
+                class="px-2 sm:px-4 py-1.5 sm:py-2 h-auto rounded-lg text-xs sm:text-sm font-bold transition-all {currentView === 'customers' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
             >
                 Clients
             </Button>
             <Button 
                 variant="ghost"
                 onclick={() => currentView = "customers_categories"}
-                class="px-4 py-2 h-auto rounded-lg font-bold transition-all {currentView === 'customers_categories' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
+                class="px-2 sm:px-4 py-1.5 sm:py-2 h-auto rounded-lg text-xs sm:text-sm font-bold transition-all {currentView === 'customers_categories' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
             >
                 Classes
             </Button>
             <Button 
                 variant="ghost"
                 onclick={() => currentView = "management"}
-                class="px-4 py-2 h-auto rounded-lg font-bold transition-all {currentView === 'management' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
+                class="px-2 sm:px-4 py-1.5 sm:py-2 h-auto rounded-lg text-xs sm:text-sm font-bold transition-all {currentView === 'management' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
             >
                 Produits
             </Button>
             <Button 
                 variant="ghost"
                 onclick={() => currentView = "categories_mgmt"}
-                class="px-4 py-2 h-auto rounded-lg font-bold transition-all {currentView === 'categories_mgmt' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
+                class="px-2 sm:px-4 py-1.5 sm:py-2 h-auto rounded-lg text-xs sm:text-sm font-bold transition-all {currentView === 'categories_mgmt' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
             >
                 Catégories
             </Button>
@@ -127,7 +127,7 @@
         <Button 
             variant="ghost"
             onclick={handleReset} 
-            class="bg-red-500/80 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors"
+            class="bg-red-500/80 hover:bg-red-600 text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold shadow-sm transition-colors"
         >
             Reset DB
         </Button>
@@ -136,16 +136,16 @@
     <Toaster richColors position="top-right" />
 
     <!-- Contenu de la Page -->
-    <div class="w-full max-w-7xl mt-12 relative z-10">
+    <div class="w-full max-w-7xl mt-16 sm:mt-20 md:mt-24 relative z-10 px-2 sm:px-4">
 
         {#if currentView === "home"}
-            <div class="bg-white/90 p-12 rounded-3xl shadow-2xl text-center max-w-2xl mx-auto border border-white/40">
-                <h1 class="text-5xl font-extrabold mb-6 text-gray-800 tracking-tight">AppliKfet</h1>
-                <p class="text-xl text-gray-600 mb-8 leading-relaxed">Bienvenue sur votre outil de gestion de KFet. Gérez vos clients, leurs comptes et vos catégories simplement.</p>
+            <div class="bg-white/90 p-6 sm:p-8 md:p-12 rounded-2xl sm:rounded-3xl shadow-2xl text-center max-w-2xl mx-auto border border-white/40">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 sm:mb-6 text-gray-800 tracking-tight">AppliKfet</h1>
+                <p class="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 leading-relaxed">Bienvenue sur votre outil de gestion de KFet. Gérez vos clients, leurs comptes et vos catégories simplement.</p>
                 <Button 
                     variant="ghost"
                     onclick={() => currentView = "customers"}
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 h-auto rounded-xl font-bold text-lg shadow-lg hover:shadow-indigo-500/30 hover:text-white transition-all scale-100 hover:scale-105"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 sm:px-8 py-2.5 sm:py-3 h-auto rounded-xl font-bold text-base sm:text-lg shadow-lg hover:shadow-indigo-500/30 hover:text-white transition-all scale-100 hover:scale-105"
                 >
                     Accéder à la Gestion Clients
                 </Button>

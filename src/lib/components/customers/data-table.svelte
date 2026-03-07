@@ -79,8 +79,8 @@
   });
 </script>
  
-<div class="rounded-md border">
-  <Table.Root>
+<div class="rounded-md border overflow-x-auto">
+  <Table.Root class="min-w-full">
     <Table.Header>
       {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
         <Table.Row>

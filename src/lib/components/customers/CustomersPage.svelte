@@ -138,48 +138,48 @@
   }
 </script>
 
-<div class="flex flex-col gap-6 w-full max-w-6xl">
-    <div class="flex justify-between items-end">
-        <div class="flex flex-col gap-4">
+<div class="flex flex-col gap-4 sm:gap-6 w-full max-w-6xl">
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-4">
+        <div class="flex flex-col gap-3 sm:gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-white">Gestion des Clients</h1>
-                <p class="text-gray-200">Sélectionnez un client dans la liste pour commencer une commande</p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-white">Gestion des Clients</h1>
+                <p class="text-sm sm:text-base text-gray-200">Sélectionnez un client dans la liste pour commencer une commande</p>
             </div>
             
-            <div class="flex gap-4">
+            <div class="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
                 <Button 
                     variant="ghost"
                     onclick={() => selectedCustomer && onStartOrder(selectedCustomer)}
                     disabled={!selectedCustomer}
-                    class="bg-white text-indigo-700 font-bold py-3 px-8 h-auto rounded-xl shadow-lg transition-all 
+                    class="bg-white text-indigo-700 font-bold py-2 sm:py-3 px-4 sm:px-8 h-auto text-sm sm:text-base rounded-xl shadow-lg transition-all 
                     {selectedCustomer 
                         ? 'hover:bg-indigo-50 hover:scale-105 active:scale-95 cursor-pointer opacity-100 hover:text-indigo-700' 
                         : 'opacity-50 cursor-not-allowed transform-none'}"
                 >
-                    🛒 Passer une commande {selectedCustomer ? `pour ${selectedCustomer.firstName}` : ''}
+                    🛍️ <span class="hidden sm:inline">Passer une commande</span><span class="sm:hidden">Commander</span> {selectedCustomer ? `pour ${selectedCustomer.firstName}` : ''}
                 </Button>
 
                 {#if selectedCustomer}
                     <Button 
                         variant="ghost"
                         onclick={startEditing}
-                        class="bg-indigo-600/50 hover:bg-indigo-600/80 text-white font-bold py-3 px-6 h-auto rounded-xl shadow-lg border border-indigo-200/20 backdrop-blur-sm transition-all animate-in fade-in zoom-in-95 hover:text-white"
+                        class="bg-indigo-600/50 hover:bg-indigo-600/80 text-white font-bold py-2 sm:py-3 px-3 sm:px-6 h-auto text-sm sm:text-base rounded-xl shadow-lg border border-indigo-200/20 backdrop-blur-sm transition-all animate-in fade-in zoom-in-95 hover:text-white"
                     >
-                        ✎ Modifier le client
+                        ✎ <span class="hidden sm:inline">Modifier le client</span><span class="sm:hidden">Modifier</span>
                     </Button>
                     <Button 
                         variant="ghost"
                         onclick={() => isAddingMoney = true}
-                        class="bg-emerald-600/50 hover:bg-emerald-600/80 text-white font-bold py-3 px-6 h-auto rounded-xl shadow-lg border border-emerald-200/20 backdrop-blur-sm transition-all animate-in fade-in zoom-in-95 hover:text-white"
+                        class="bg-emerald-600/50 hover:bg-emerald-600/80 text-white font-bold py-2 sm:py-3 px-3 sm:px-6 h-auto text-sm sm:text-base rounded-xl shadow-lg border border-emerald-200/20 backdrop-blur-sm transition-all animate-in fade-in zoom-in-95 hover:text-white"
                     >
-                        Ajouter de l'argent
+                        💰 <span class="hidden sm:inline">Ajouter de l'argent</span><span class="sm:hidden">Ajouter</span>
                     </Button>
                     <Button 
                         variant="ghost"
                         onclick={() => isRemovingMoney = true}
-                        class="bg-rose-600/50 hover:bg-rose-600/80 text-white font-bold py-3 px-6 h-auto rounded-xl shadow-lg border border-rose-200/20 backdrop-blur-sm transition-all animate-in fade-in zoom-in-95 hover:text-white"
+                        class="bg-rose-600/50 hover:bg-rose-600/80 text-white font-bold py-2 sm:py-3 px-3 sm:px-6 h-auto text-sm sm:text-base rounded-xl shadow-lg border border-rose-200/20 backdrop-blur-sm transition-all animate-in fade-in zoom-in-95 hover:text-white"
                     >
-                        Retirer de l'argent
+                        💸 <span class="hidden sm:inline">Retirer de l'argent</span><span class="sm:hidden">Retirer</span>
                     </Button>
                 {/if}
             </div>
