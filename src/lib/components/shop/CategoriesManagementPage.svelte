@@ -11,6 +11,7 @@
     import * as FileDropZone from "$lib/components/ui/file-drop-zone/index.js";
     import { invoke } from "@tauri-apps/api/core";
     import { Input } from "$lib/components/ui/input/index.js";
+    import { Label } from "$lib/components/ui/label/index.js";
     import { Button } from "$lib/components/ui/button/index.js";
     import * as Dialog from "$lib/components/ui/dialog/index.js";
     import { toast } from "svelte-sonner";
@@ -101,60 +102,52 @@
     }
 </script>
 
-<div class="space-y-4 sm:space-y-6 w-full animate-in fade-in duration-500 px-2 sm:px-0">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+<div class="space-y-4 w-full">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-            <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">Gestion des Catégories</h1>
-            <p class="text-white/70 font-bold uppercase tracking-widest text-[10px] sm:text-xs">Organisation du Catalogue</p>
+            <h1 class="text-2xl font-semibold text-slate-800">Gestion des catégories</h1>
+            <p class="text-sm text-slate-500">Organisation du catalogue</p>
         </div>
-        <Button 
-            variant="ghost"
-            onclick={startAdd}
-            class="bg-white text-indigo-600 px-4 sm:px-6 py-2 sm:py-3 h-auto text-xs sm:text-sm rounded-xl font-black shadow-lg hover:shadow-white/20 hover:bg-white hover:text-indigo-600 transition-all active:scale-95 uppercase tracking-widest"
-        >
+        <Button onclick={startAdd}>
             Ajouter une catégorie
         </Button>
     </div>
 
-    <!-- Filtres et Recherche -->
-    <div class="bg-white/10 backdrop-blur-md p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/20">
-        <Input 
-            type="text" 
-            placeholder="Rechercher une catégorie..." 
-            bind:value={searchQuery}
-            class="bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:ring-indigo-500 h-10 sm:h-12 text-base sm:text-lg font-bold"
-        />
-    </div>
+    <Input 
+        type="text" 
+        placeholder="Rechercher une catégorie..." 
+        bind:value={searchQuery}
+    />
 
     <!-- Liste des Catégories -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {#each filteredCategories as category}
-            <div class="bg-white/95 rounded-2xl overflow-hidden shadow-xl border border-white/20 flex flex-col group h-48">
-                <div class="flex-1 bg-gray-100 relative overflow-hidden">
+            <div class="bg-white rounded-lg border border-slate-200 overflow-hidden flex flex-col h-44">
+                <div class="flex-1 bg-slate-100 relative overflow-hidden">
                     {#if category.imagePath}
-                        <img src={category.imagePath} alt={category.name} class="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
+                        <img src={category.imagePath} alt={category.name} class="w-full h-full object-cover" />
                     {:else}
-                        <div class="w-full h-full flex items-center justify-center text-gray-300 font-black uppercase text-xs">No Meta</div>
+                        <div class="w-full h-full flex items-center justify-center text-slate-300 text-sm">Pas d'image</div>
                     {/if}
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-4">
-                        <h3 class="font-black text-white uppercase text-xl leading-tight tracking-tighter">{category.name}</h3>
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+                        <h3 class="font-semibold text-white text-lg">{category.name}</h3>
                     </div>
-                    <div class="absolute top-2 right-2 flex gap-2">
+                    <div class="absolute top-2 right-2 flex gap-1">
                         <Button 
-                            variant="ghost" 
+                            variant="secondary" 
                             size="icon"
-                            onclick={() => startEdit(category)} 
-                            class="bg-white/90 p-2 rounded-lg text-indigo-600 shadow-sm hover:bg-white hover:text-indigo-600 transition-all active:scale-95"
+                            onclick={() => startEdit(category)}
+                            class="h-7 w-7"
                         >
-                            ✏️
+                            <span class="text-xs">✎</span>
                         </Button>
                         <Button 
-                            variant="ghost" 
+                            variant="destructive" 
                             size="icon"
-                            onclick={() => handleDelete(category.id)} 
-                            class="bg-red-500/90 p-2 rounded-lg text-white shadow-sm hover:bg-red-600 hover:text-white transition-all active:scale-95"
+                            onclick={() => handleDelete(category.id)}
+                            class="h-7 w-7"
                         >
-                            🗑️
+                            <span class="text-xs">×</span>
                         </Button>
                     </div>
                 </div>
@@ -164,63 +157,53 @@
 
     <!-- Modal d'édition/ajout -->
     <Dialog.Root bind:open={isEditing}>
-        <Dialog.Content class="sm:max-w-lg p-0 overflow-hidden rounded-3xl border-0 shadow-2xl">
-            <div class="p-8 space-y-6">
-                <Dialog.Header>
-                    <Dialog.Title class="text-2xl font-black text-gray-800 uppercase tracking-tighter border-b pb-4">
-                        {currentCategory.id ? 'Modifier' : 'Ajouter'} une catégorie
-                    </Dialog.Title>
-                </Dialog.Header>
+        <Dialog.Content class="sm:max-w-md">
+            <Dialog.Header>
+                <Dialog.Title>
+                    {currentCategory.id ? 'Modifier' : 'Ajouter'} une catégorie
+                </Dialog.Title>
+            </Dialog.Header>
 
-                <div class="space-y-4">
-                    <div class="space-y-1">
-                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nom de la catégorie</span>
-                        <Input bind:value={currentCategory.name} class="font-bold h-12" placeholder="Boissons, Snacks, etc." />
-                    </div>
-
-                    <div class="space-y-1">
-                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Image de couverture</span>
-                        
-                        <FileDropZone.Root onUpload={handleUpload} accept="image/*" maxFiles={1}>
-                            <FileDropZone.Trigger>
-                                <div 
-                                    class="border-2 border-dashed border-gray-200 rounded-xl p-6 transition-colors hover:bg-gray-50 text-center cursor-pointer w-full"
-                                >
-                                    {#if currentCategory.imagePath}
-                                        <div class="flex flex-col items-center gap-2 mb-2">
-                                            <img src={currentCategory.imagePath} alt="Aperçu" class="w-24 h-24 object-cover rounded-xl shadow-lg" />
-                                            <span class="text-[10px] font-mono text-gray-500 break-all max-w-[200px]">{currentCategory.imagePath}</span>
-                                        </div>
-                                    {:else}
-                                        <div class="py-4">
-                                            <p class="text-xs text-gray-400 uppercase font-black">Glissez une image ici</p>
-                                            <p class="text-[8px] text-gray-300">ou cliquez pour sélectionner</p>
-                                        </div>
-                                    {/if}
-                                </div>
-                            </FileDropZone.Trigger>
-                        </FileDropZone.Root>
-                        
-                        <Input bind:value={currentCategory.imagePath} class="h-8 font-mono text-[10px] mt-2" placeholder="Ex: static/products_categories/boisson.png" />
-                    </div>
+            <div class="space-y-4 py-2">
+                <div class="space-y-1">
+                    <Label>Nom</Label>
+                    <Input bind:value={currentCategory.name} placeholder="Boissons, Snacks, etc." />
                 </div>
 
-                <div class="flex gap-4 pt-6">
-                    <Button 
-                        variant="ghost"
-                        onclick={() => isEditing = false}
-                        class="flex-1 py-4 px-6 h-auto border border-gray-200 rounded-2xl font-black text-gray-500 hover:bg-gray-50 transition-all uppercase tracking-widest text-[10px]"
-                    >
-                        Annuler
-                    </Button>
-                    <Button 
-                        variant="ghost"
-                        onclick={saveCategory}
-                        class="flex-[2] py-4 px-6 h-auto bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:text-white transition-all active:scale-95 uppercase tracking-widest text-[10px]"
-                    >
-                        {currentCategory.id ? 'Modifier' : 'Créer'}
-                    </Button>
+                <div class="space-y-1">
+                    <Label>Image</Label>
+                    <FileDropZone.Root onUpload={handleUpload} accept="image/*" maxFiles={1}>
+                        <FileDropZone.Trigger>
+                            <div class="border-2 border-dashed border-slate-200 rounded-lg p-4 text-center cursor-pointer hover:bg-slate-50 w-full">
+                                {#if currentCategory.imagePath}
+                                    <div class="flex flex-col items-center gap-2">
+                                        <img src={currentCategory.imagePath} alt="Aperçu" class="w-20 h-20 object-cover rounded" />
+                                        <span class="text-xs text-slate-500 break-all max-w-[200px]">{currentCategory.imagePath}</span>
+                                    </div>
+                                {:else}
+                                    <p class="text-sm text-slate-400">Glissez une image ici</p>
+                                {/if}
+                            </div>
+                        </FileDropZone.Trigger>
+                    </FileDropZone.Root>
+                    <Input bind:value={currentCategory.imagePath} class="text-xs mt-1" placeholder="Chemin vers l'image" />
                 </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <Button 
+                    variant="outline"
+                    onclick={() => isEditing = false}
+                    class="flex-1"
+                >
+                    Annuler
+                </Button>
+                <Button 
+                    onclick={saveCategory}
+                    class="flex-[2]"
+                >
+                    {currentCategory.id ? 'Enregistrer' : 'Créer'}
+                </Button>
             </div>
         </Dialog.Content>
     </Dialog.Root>

@@ -11,7 +11,6 @@
     import { Toaster } from "$lib/components/ui/sonner/index.js";
     import { toast } from "svelte-sonner";
     import { Button } from "$lib/components/ui/button";
-    import Particles from "$lib/components/particles/Particles.svelte";
     
     const SAVED_VIEW_KEY = "app_current_view";
     
@@ -80,47 +79,44 @@
     }
 </script>
 
-<main
-	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-2 sm:p-4 md:p-8 select-none relative"
->
-    <Particles className="absolute inset-0 pointer-events-none" refresh={true} />
-    <!-- Barre de Navigation Supérieure -->
-    <nav class="absolute top-0 left-0 right-0 p-2 sm:p-4 bg-white/10 flex flex-wrap justify-between items-center backdrop-blur-md z-40 gap-2">
-        <div class="flex flex-wrap gap-2 sm:gap-4">
+<main class="min-h-screen bg-slate-50 select-none">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-40 bg-white border-b border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap gap-1">
             <Button 
-                variant="ghost"
+                variant={currentView === "customers" ? "default" : "ghost"}
+                size="sm"
                 onclick={() => currentView = "customers"}
-                class="px-2 sm:px-4 py-1.5 sm:py-2 h-auto rounded-lg text-xs sm:text-sm font-bold transition-all {currentView === 'customers' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
             >
                 Clients
             </Button>
             <Button 
-                variant="ghost"
+                variant={currentView === "customers_categories" ? "default" : "ghost"}
+                size="sm"
                 onclick={() => currentView = "customers_categories"}
-                class="px-2 sm:px-4 py-1.5 sm:py-2 h-auto rounded-lg text-xs sm:text-sm font-bold transition-all {currentView === 'customers_categories' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
             >
                 Classes
             </Button>
             <Button 
-                variant="ghost"
+                variant={currentView === "management" ? "default" : "ghost"}
+                size="sm"
                 onclick={() => currentView = "management"}
-                class="px-2 sm:px-4 py-1.5 sm:py-2 h-auto rounded-lg text-xs sm:text-sm font-bold transition-all {currentView === 'management' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
             >
                 Produits
             </Button>
             <Button 
-                variant="ghost"
+                variant={currentView === "categories_mgmt" ? "default" : "ghost"}
+                size="sm"
                 onclick={() => currentView = "categories_mgmt"}
-                class="px-2 sm:px-4 py-1.5 sm:py-2 h-auto rounded-lg text-xs sm:text-sm font-bold transition-all {currentView === 'categories_mgmt' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
             >
                 Catégories
             </Button>
         </div>
         
         <Button 
-            variant="ghost"
-            onclick={handleReset} 
-            class="bg-red-500/80 hover:bg-red-600 text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold shadow-sm transition-colors"
+            variant="destructive"
+            size="sm"
+            onclick={handleReset}
         >
             Reset DB
         </Button>
@@ -128,13 +124,10 @@
 
     <Toaster richColors position="top-right" />
 
-    <!-- Contenu de la Page -->
-    <div class="w-full max-w-7xl mt-16 sm:mt-20 md:mt-24 relative z-10 px-2 sm:px-4">
-
+    <!-- Contenu -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
         {#if currentView === "customers"}
-            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <CustomersPage onStartOrder={handleStartOrder} />
-            </div>
+            <CustomersPage onStartOrder={handleStartOrder} />
         {:else if currentView === "catalog"}
             <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <CatalogPage 
@@ -143,19 +136,19 @@
                 />
             </div>
         {:else if currentView === "products"}
-            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500 px-2 sm:px-4 md:px-0">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 sm:mb-6">
+            <div class="space-y-4">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                     <Button 
                         variant="ghost"
+                        size="sm"
                         onclick={() => currentView = "catalog"}
-                        class="text-white/80 hover:text-white hover:bg-white/10 flex items-center gap-2 font-bold text-sm sm:text-base py-2 px-3 sm:px-4 h-auto rounded-lg"
                     >
-                        ← <span class="hidden sm:inline">Retour au catalogue</span><span class="sm:hidden">Retour</span>
+                        ← Retour au catalogue
                     </Button>
                     {#if selectedCustomerOrder}
-                        <div class="bg-white/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-white font-semibold text-xs sm:text-sm">
-                            <span class="hidden sm:inline">Commande pour :</span> {selectedCustomerOrder.firstName} {selectedCustomerOrder.lastName}
-                        </div>
+                        <span class="text-sm text-slate-600">
+                            Commande pour <strong>{selectedCustomerOrder.firstName} {selectedCustomerOrder.lastName}</strong>
+                        </span>
                     {/if}
                 </div>
                 {#if selectedCategory}
@@ -167,7 +160,7 @@
                 {/if}
             </div>
         {:else if currentView === "quantity"}
-            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500 flex justify-center">
+            <div class="flex justify-center">
                 {#if selectedProduct}
                     <ProductQuantityPage 
                         product={selectedProduct} 
@@ -178,17 +171,11 @@
                 {/if}
             </div>
         {:else if currentView === "management"}
-            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <ProductsManagementPage />
-            </div>
+            <ProductsManagementPage />
         {:else if currentView === "categories_mgmt"}
-            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <CategoriesManagementPage />
-            </div>
+            <CategoriesManagementPage />
         {:else if currentView === "customers_categories"}
-            <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <CustomerCategoriesPage />
-            </div>
+            <CustomerCategoriesPage />
         {/if}
     </div>
 </main>

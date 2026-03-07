@@ -1,1 +1,0 @@
-- supprime page d'accueil?
