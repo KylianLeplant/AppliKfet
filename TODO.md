@@ -1,4 +1,1 @@
 - supprime page d'accueil?
-- bouton supprimer client (le mettre dans catégorie ancien)  
-- sauvegarde
-- responsive et design (opus 4.6)
