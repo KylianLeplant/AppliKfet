@@ -15,8 +15,8 @@
     
     const SAVED_VIEW_KEY = "app_current_view";
     
-    let currentView = $state<"home" | "customers" | "catalog" | "products" | "quantity" | "management" | "categories_mgmt" | "customers_categories">(
-        (sessionStorage.getItem(SAVED_VIEW_KEY) as any) || "home"
+    let currentView = $state<"customers" | "catalog" | "products" | "quantity" | "management" | "categories_mgmt" | "customers_categories">(
+        (sessionStorage.getItem(SAVED_VIEW_KEY) as any) || "customers"
     );
     let selectedCategory = $state<ProductCategory | null>(null);
     let selectedCustomerOrder = $state<Customer | null>(null);
@@ -89,13 +89,6 @@
         <div class="flex flex-wrap gap-2 sm:gap-4">
             <Button 
                 variant="ghost"
-                onclick={() => currentView = "home"}
-                class="px-2 sm:px-4 py-1.5 sm:py-2 h-auto rounded-lg text-xs sm:text-sm font-bold transition-all {currentView === 'home' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
-            >
-                Accueil
-            </Button>
-            <Button 
-                variant="ghost"
                 onclick={() => currentView = "customers"}
                 class="px-2 sm:px-4 py-1.5 sm:py-2 h-auto rounded-lg text-xs sm:text-sm font-bold transition-all {currentView === 'customers' ? 'bg-white text-indigo-600 shadow-md hover:bg-white hover:text-indigo-600' : 'text-white hover:bg-white/20 hover:text-white'}"
             >
@@ -138,19 +131,7 @@
     <!-- Contenu de la Page -->
     <div class="w-full max-w-7xl mt-16 sm:mt-20 md:mt-24 relative z-10 px-2 sm:px-4">
 
-        {#if currentView === "home"}
-            <div class="bg-white/90 p-6 sm:p-8 md:p-12 rounded-2xl sm:rounded-3xl shadow-2xl text-center max-w-2xl mx-auto border border-white/40">
-                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 sm:mb-6 text-gray-800 tracking-tight">AppliKfet</h1>
-                <p class="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 leading-relaxed">Bienvenue sur votre outil de gestion de KFet. Gérez vos clients, leurs comptes et vos catégories simplement.</p>
-                <Button 
-                    variant="ghost"
-                    onclick={() => currentView = "customers"}
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 sm:px-8 py-2.5 sm:py-3 h-auto rounded-xl font-bold text-base sm:text-lg shadow-lg hover:shadow-indigo-500/30 hover:text-white transition-all scale-100 hover:scale-105"
-                >
-                    Accéder à la Gestion Clients
-                </Button>
-            </div>
-        {:else if currentView === "customers"}
+        {#if currentView === "customers"}
             <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <CustomersPage onStartOrder={handleStartOrder} />
             </div>

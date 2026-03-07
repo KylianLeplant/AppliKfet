@@ -156,7 +156,7 @@
                         ? 'hover:bg-indigo-50 hover:scale-105 active:scale-95 cursor-pointer opacity-100 hover:text-indigo-700' 
                         : 'opacity-50 cursor-not-allowed transform-none'}"
                 >
-                    🛍️ <span class="hidden sm:inline">Passer une commande</span><span class="sm:hidden">Commander</span> {selectedCustomer ? `pour ${selectedCustomer.firstName}` : ''}
+                    <span class="hidden sm:inline">Passer une commande</span><span class="sm:hidden">Commander</span> {selectedCustomer ? `pour ${selectedCustomer.firstName}` : ''}
                 </Button>
 
                 {#if selectedCustomer}
@@ -165,21 +165,21 @@
                         onclick={startEditing}
                         class="bg-indigo-600/50 hover:bg-indigo-600/80 text-white font-bold py-2 sm:py-3 px-3 sm:px-6 h-auto text-sm sm:text-base rounded-xl shadow-lg border border-indigo-200/20 backdrop-blur-sm transition-all animate-in fade-in zoom-in-95 hover:text-white"
                     >
-                        ✎ <span class="hidden sm:inline">Modifier le client</span><span class="sm:hidden">Modifier</span>
+                        <span class="hidden sm:inline">Modifier le client</span><span class="sm:hidden">Modifier</span>
                     </Button>
                     <Button 
                         variant="ghost"
                         onclick={() => isAddingMoney = true}
                         class="bg-emerald-600/50 hover:bg-emerald-600/80 text-white font-bold py-2 sm:py-3 px-3 sm:px-6 h-auto text-sm sm:text-base rounded-xl shadow-lg border border-emerald-200/20 backdrop-blur-sm transition-all animate-in fade-in zoom-in-95 hover:text-white"
                     >
-                        💰 <span class="hidden sm:inline">Ajouter de l'argent</span><span class="sm:hidden">Ajouter</span>
+                        <span class="hidden sm:inline">Ajouter de l'argent</span><span class="sm:hidden">Ajouter</span>
                     </Button>
                     <Button 
                         variant="ghost"
                         onclick={() => isRemovingMoney = true}
                         class="bg-rose-600/50 hover:bg-rose-600/80 text-white font-bold py-2 sm:py-3 px-3 sm:px-6 h-auto text-sm sm:text-base rounded-xl shadow-lg border border-rose-200/20 backdrop-blur-sm transition-all animate-in fade-in zoom-in-95 hover:text-white"
                     >
-                        💸 <span class="hidden sm:inline">Retirer de l'argent</span><span class="sm:hidden">Retirer</span>
+                        <span class="hidden sm:inline">Retirer de l'argent</span><span class="sm:hidden">Retirer</span>
                     </Button>
                 {/if}
             </div>
@@ -291,7 +291,6 @@
             <Sheet.Content side="right" class="w-[400px] sm:w-[540px] p-6 overflow-y-auto">
                 <Sheet.Header class="mb-6">
                     <Sheet.Title class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                        <span class="text-indigo-600 text-2xl">✎</span> 
                         Édition du client
                     </Sheet.Title>
                 </Sheet.Header>
