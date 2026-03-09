@@ -261,6 +261,40 @@ export async function createOrder(data: NewOrder) {
   }
 }
 
+export type OrderWithDetails = {
+  id: number;
+  customerName: string;
+  productName: string;
+  quantity: number;
+  totalPrice: number;
+  createdAt: string | null;
+};
+
+export async function getOrdersWithDetails(): Promise<OrderWithDetails[]> {
+  const rows = await db.select({
+    id: orders.id,
+    quantity: orders.quantity,
+    totalPrice: orders.totalPrice,
+    createdAt: orders.createdAt,
+    customerFirstName: customers.firstName,
+    customerLastName: customers.lastName,
+    productName: products.name,
+  })
+  .from(orders)
+  .leftJoin(customers, eq(orders.customerId, customers.id))
+  .leftJoin(products, eq(orders.productId, products.id))
+  .all();
+
+  return rows.map((row) => ({
+    id: row.id,
+    quantity: row.quantity,
+    totalPrice: row.totalPrice,
+    createdAt: row.createdAt,
+    customerName: [row.customerFirstName, row.customerLastName].filter(Boolean).join(" ") || "Client inconnu",
+    productName: row.productName || "Produit inconnu",
+  }));
+}
+
 export async function updateCustomer(id: number, data: Partial<NewCustomer>) {
   return await db.update(customers)
     .set(data)

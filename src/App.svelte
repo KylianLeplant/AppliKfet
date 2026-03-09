@@ -8,13 +8,14 @@
     import ProductsManagementPage from "$lib/components/shop/ProductsManagementPage.svelte";
     import CategoriesManagementPage from "$lib/components/shop/CategoriesManagementPage.svelte";
     import CustomerCategoriesPage from "$lib/components/customers/CustomerCategoriesPage.svelte";
+    import OrdersPage from "$lib/components/orders/OrdersPage.svelte";
     import { Toaster } from "$lib/components/ui/sonner/index.js";
     import { toast } from "svelte-sonner";
     import { Button } from "$lib/components/ui/button";
     
     const SAVED_VIEW_KEY = "app_current_view";
     
-    let currentView = $state<"customers" | "catalog" | "products" | "quantity" | "management" | "categories_mgmt" | "customers_categories">(
+    let currentView = $state<"customers" | "catalog" | "products" | "quantity" | "management" | "categories_mgmt" | "customers_categories" | "orders">(
         (sessionStorage.getItem(SAVED_VIEW_KEY) as any) || "customers"
     );
     let selectedCategory = $state<ProductCategory | null>(null);
@@ -111,6 +112,13 @@
             >
                 Catégories
             </Button>
+            <Button 
+                variant={currentView === "orders" ? "default" : "ghost"}
+                size="sm"
+                onclick={() => currentView = "orders"}
+            >
+                Commandes
+            </Button>
         </div>
         
         <Button 
@@ -176,6 +184,8 @@
             <CategoriesManagementPage />
         {:else if currentView === "customers_categories"}
             <CustomerCategoriesPage />
+        {:else if currentView === "orders"}
+            <OrdersPage />
         {/if}
     </div>
 </main>

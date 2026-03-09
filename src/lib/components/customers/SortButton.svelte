@@ -1,10 +1,9 @@
 <script lang="ts">
   import type { Column } from "@tanstack/table-core";
-  import type { Customer } from "$lib/db/schema";
   import { Button } from "$lib/components/ui/button/index.js";
   import { ArrowUpDown, ArrowUp, ArrowDown } from "@lucide/svelte";
 
-  let { column, title }: { column: Column<Customer, unknown>, title: string } = $props();
+  let { column, title }: { column: Column<any, unknown>, title: string } = $props();
 
   function toggleSort() {
     column.toggleSorting(column.getIsSorted() === "asc");
