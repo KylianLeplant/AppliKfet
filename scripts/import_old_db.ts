@@ -3,7 +3,7 @@ import { Database } from "bun:sqlite";
 import { drizzle } from "drizzle-orm/bun-sqlite";
 import { customers, categories, productsCategories, products } from "../src/lib/db/schema";
 import { join } from "path";
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { homedir } from "os";
 
 
@@ -54,6 +54,38 @@ interface OldClient {
     droit: string | null;
 }
 
+interface CategorySingleSeed {
+    name: string;
+    dept: string;
+    year: string | null;
+}
+
+interface ProductCategorySeed {
+    name: string;
+    imagePath: string | null;
+}
+
+interface ProductSeed {
+    name: string;
+    price: number;
+    priceForThree: number | null;
+    priceForKfetier: number;
+    priceForThreeKfetier: number | null;
+    categoryName: string;
+    imagePath: string | null;
+}
+
+function readSeedJson<T>(fileName: string): T {
+    const filePath = join(import.meta.dir, "seed-data", fileName);
+    return JSON.parse(readFileSync(filePath, "utf-8")) as T;
+}
+
+const seededDepts = readSeedJson<string[]>("category-depts.json");
+const seededYears = readSeedJson<string[]>("category-years.json");
+const seededCategorySingles = readSeedJson<CategorySingleSeed[]>("category-singles.json");
+const seededProductCategories = readSeedJson<ProductCategorySeed[]>("product-categories.json");
+const seededProducts = readSeedJson<ProductSeed[]>("products.json");
+
 // Ensure tables exist
 const run = newSqlite.run.bind(newSqlite);
 async function initTables() {
@@ -88,12 +120,10 @@ async function initTables() {
 
 async function seedCategories() {
     console.log("🌱 Seeding categories if missing...");
-    const depts = ["DI", "DA", "DEE", "DMS", "ISIE", "MMA"];
-    const years = ["3A", "4A", "5A"];
     
     // Insert base categories
-    for (const dept of depts) {
-        for (const year of years) {
+    for (const dept of seededDepts) {
+        for (const year of seededYears) {
             const name = `${dept} ${year}`;
             try {
                 // Manually insert via SQL to avoid TS complexity with drizzle-orm insert ignore
@@ -103,23 +133,8 @@ async function seedCategories() {
             }
         }
     }
-    
-    const singles = [
-         {name: "PeiP1", dept: "PeiP", year: "PeiP1"},
-         {name: "PeiP2", dept: "PeiP", year: "PeiP2"},
-         {name: "Prof", dept: "Prof", year: null},
-         {name: "Autre", dept: "Autre", year: null},
-         {name: "DA sans classe", dept: "DA", year: null},
-         {name: "ISIE sans classe", dept: "ISIE", year: null},
-         {name: "MMA sans classe", dept: "MMA", year: null},
-         {name: "DMS sans classe", dept: "DMS", year: null},
-         {name: "Anciens élèves", dept: "Anciens élèves", year: null},
-         {name: "PeiP sans classe", dept: "PeiP", year: null},
-         {name: "KFetier", dept: "KFetier", year: null},
-         {name: "Save", dept: "Save", year: null}
-    ];
 
-    for (const s of singles) {
+    for (const s of seededCategorySingles) {
         try {
             run(`INSERT OR IGNORE INTO categories (name, dept, year) VALUES (?, ?, ?)`, [s.name, s.dept, s.year]);
         } catch (e: any) {
@@ -222,14 +237,7 @@ async function seedProducts() {
         const existingProductsCats = await db.select().from(productsCategories);
         if (existingProductsCats.length === 0) {
             console.log("Seeding sample product categories...");
-            const sampleProductCategories = [
-                { name: "Boissons", imagePath: "static/products_categories/boissons.png" },
-                { name: "Snacks", imagePath: "static/products_categories/snacks.webp" },
-                { name: "Midi", imagePath: "static/products_categories/pizza.webp" },
-                { name: "St-Michel", imagePath: "static/products_categories/st_michel.png" },
-                { name: "suppléments", imagePath: null }
-            ];
-            for (const cat of sampleProductCategories) {
+            for (const cat of seededProductCategories) {
                 await db.insert(productsCategories).values(cat);
             }
             console.log("Product categories seeded OK.");
@@ -243,24 +251,20 @@ async function seedProducts() {
         if (existingProducts.length === 0) {
             console.log("Seeding sample products...");
             const allProductCats: any[] = await db.select().from(productsCategories);
-            const sampleProducts = [
-                { name: "Breizh-Cola", price: 1.5, priceForThree: 4.0, priceForKfetier: 1.2, priceForThreeKfetier: 3.5, categoryId: allProductCats.find(c => c.name === "Boissons")?.id, imagePath: "static/products/breizh_cola.jpeg" },
-                { name: "Pizza", price: 3, priceForThree: null, priceForKfetier: 2.8, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Midi")?.id, imagePath: "static/products/pizza.webp" },
-                { name: "Croques-monsieur x2", price: 1.6, priceForThree: null, priceForKfetier: 1.4, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Midi")?.id, imagePath: "static/products/croque_monsieur.png" },
-                { name: "Croques-monsieur x4", price: 3, priceForThree: null, priceForKfetier: 2.8, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Midi")?.id, imagePath: "static/products/croque_monsieur.png" },
-                { name: "Eau Minérale", price: 0.5, priceForThree: null, priceForKfetier: 0.5, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Boissons")?.id, imagePath: "static/products/eau.jpg" },
-                { name: "Madeleine nature", price: 0.2, priceForThree: 0.5, priceForKfetier: 0.15, priceForThreeKfetier: 0.45, categoryId: allProductCats.find(c => c.name === "St-Michel")?.id, imagePath: "static/products/madeleines.jfif" },
-                { name: "Madeleines chocolat", price: 0.3, priceForThree: 0.8, priceForKfetier: 0.25, priceForThreeKfetier: 0.7, categoryId: allProductCats.find(c => c.name === "St-Michel")?.id, imagePath: "static/products/madeleines choco.jpg" },
-                { name: "Brownies", price: 2.0, priceForThree: null, priceForKfetier: 1.5, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "St-Michel")?.id, imagePath: "static/products/brownies.jpg" },
-                { name: "Kinder Bueno", price: 0.8, priceForThree: null, priceForKfetier: 0.7, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Snacks")?.id, imagePath: "static/products/kinder bueno.webp" },
-                { name: "M&M's", price: 0.6, priceForThree: null, priceForKfetier: 0.5, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Snacks")?.id, imagePath: "static/products/M&Ms.jpg" },
-                { name: "Barre de céréales", price: 1.0, priceForThree: null, priceForKfetier: 0.8, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "Snacks")?.id, imagePath: null },
-                { name: "Supplément poivrons", price: 0.5, priceForThree: null, priceForKfetier: 0.4, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "suppléments")?.id, imagePath: null },
-                { name: "Supplément oignons", price: 0.5, priceForThree: null, priceForKfetier: 0.4, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "suppléments")?.id, imagePath: null },
-                { name: "Supplément champignons", price: 0.5, priceForThree: null, priceForKfetier: 0.4, priceForThreeKfetier: null, categoryId: allProductCats.find(c => c.name === "suppléments")?.id, imagePath: null }
-            ];
-            for (const prod of sampleProducts) {
-                await db.insert(products).values(prod);
+            const categoryIdByName = new Map<string, number>(
+                allProductCats.map((cat) => [cat.name, cat.id])
+            );
+
+            for (const prod of seededProducts) {
+                await db.insert(products).values({
+                    name: prod.name,
+                    price: prod.price,
+                    priceForThree: prod.priceForThree,
+                    priceForKfetier: prod.priceForKfetier,
+                    priceForThreeKfetier: prod.priceForThreeKfetier,
+                    categoryId: categoryIdByName.get(prod.categoryName),
+                    imagePath: prod.imagePath
+                });
             }
             console.log("Products seeded OK.");
         }

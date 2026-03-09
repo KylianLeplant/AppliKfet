@@ -1,0 +1,14 @@
+[
+  { "name": "PeiP1", "dept": "PeiP", "year": "PeiP1" },
+  { "name": "PeiP2", "dept": "PeiP", "year": "PeiP2" },
+  { "name": "Prof", "dept": "Prof", "year": null },
+  { "name": "Autre", "dept": "Autre", "year": null },
+  { "name": "DA sans classe", "dept": "DA", "year": null },
+  { "name": "ISIE sans classe", "dept": "ISIE", "year": null },
+  { "name": "MMA sans classe", "dept": "MMA", "year": null },
+  { "name": "DMS sans classe", "dept": "DMS", "year": null },
+  { "name": "Anciens élèves", "dept": "Anciens élèves", "year": null },
+  { "name": "PeiP sans classe", "dept": "PeiP", "year": null },
+  { "name": "KFetier", "dept": "KFetier", "year": null },
+  { "name": "Save", "dept": "Save", "year": null }
+]
