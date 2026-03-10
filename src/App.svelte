@@ -1,7 +1,7 @@
 <script lang="ts">
     import CustomersPage from '$lib/components/customers/CustomersPage.svelte';
     import { onMount } from "svelte";
-    import { initDb, resetDb, createOrder, type ProductCategory, type Customer, type Product } from "$lib/db";
+    import { initDb, createOrder, type ProductCategory, type Customer, type Product } from "$lib/db";
     import CatalogPage from "$lib/components/shop/CatalogPage.svelte";
     import ProductsPage from "$lib/components/shop/ProductsPage.svelte";
     import ProductQuantityPage from "$lib/components/shop/ProductQuantityPage.svelte";
@@ -71,13 +71,6 @@
         }
     });
 
-    async function handleReset() {
-        if (confirm("Reset database?")) {
-            sessionStorage.removeItem(SAVED_VIEW_KEY);
-            await resetDb();
-            location.reload();
-        }
-    }
 </script>
 
 <main class="min-h-screen bg-slate-50 select-none">
@@ -120,14 +113,6 @@
                 Commandes
             </Button>
         </div>
-        
-        <Button 
-            variant="destructive"
-            size="sm"
-            onclick={handleReset}
-        >
-            Reset DB
-        </Button>
     </nav>
 
     <Toaster richColors position="top-right" />
