@@ -1,2 +1,1 @@
-- visu commandes
 - stats bénéfice chaque commande

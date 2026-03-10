@@ -17,12 +17,14 @@ if (!args[0]) {
     console.log(`ℹ Using path: ${oldDbPath}`);
 }
 
-// 2. Locate the NEW database (Tauri app data)
-// Identifier from tauri.conf.json: com.tauri2-svelte5-shadcn.dev
-// Windows: %APPDATA%/com.tauri2-svelte5-shadcn.dev/kfet_v2.db
-const appData = process.env.APPDATA || process.env.HOME || ""; // Fallback
-const identifier = "com.tauri2-svelte5-shadcn.dev";
-const newDbPath = process.env.NEW_DB_PATH || join(appData, identifier, "kfet_v2.db");
+// 2. Locate the NEW database
+// Priority: NEW_DB_PATH > shared ProgramData (Windows) > per-user AppData fallback
+const appData = process.env.APPDATA || process.env.HOME || "";
+const programData = process.env.PROGRAMDATA;
+const defaultNewDbPath = programData
+    ? join(programData, "AppliKfet", "kfet_v2.db")
+    : join(appData, "com.tauri2-svelte5-shadcn.dev", "kfet_v2.db");
+const newDbPath = process.env.NEW_DB_PATH || defaultNewDbPath;
 
 console.log(`📂 Source (Old DB): ${oldDbPath}`);
 console.log(`📂 Destination (New DB): ${newDbPath}`);

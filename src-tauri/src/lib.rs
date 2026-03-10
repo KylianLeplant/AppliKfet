@@ -8,6 +8,7 @@ use db::{
     Database,
     cleanup_old_backups,
 };
+use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tauri::Manager; // Important pour .manage()
@@ -29,9 +30,37 @@ pub fn run() {
             }
             
             let app_handle = app.handle();
-            let app_data_dir = app_handle.path().app_data_dir().expect("failed to get app data dir");
-            let db_path = app_data_dir.join("kfet_v2.db");
-            let backup_dir = app_data_dir.join("backups");
+            let user_app_data_dir = app_handle.path().app_data_dir().expect("failed to get app data dir");
+
+            // Windows: prefer a machine-wide folder so all users share the same DB.
+            let shared_base_dir = if cfg!(target_os = "windows") {
+                std::env::var_os("PROGRAMDATA")
+                    .map_or_else(|| user_app_data_dir.clone(), PathBuf::from)
+                    .join("AppliKfet")
+            } else {
+                user_app_data_dir.clone()
+            };
+
+            let shared_db_path = shared_base_dir.join("kfet_v2.db");
+            let shared_backup_dir = shared_base_dir.join("backups");
+
+            let fallback_db_path = user_app_data_dir.join("kfet_v2.db");
+            let fallback_backup_dir = user_app_data_dir.join("backups");
+
+            // Use shared path first, but fallback to per-user path if permissions are restricted.
+            let (db_instance, db_path, backup_dir) = match tauri::async_runtime::block_on(async {
+                Database::new(shared_db_path.clone()).await
+            }) {
+                Ok(db) => (db, shared_db_path, shared_backup_dir),
+                Err(err) => {
+                    eprintln!("Shared DB path unavailable ({err}). Falling back to user AppData.");
+                    let db = tauri::async_runtime::block_on(async {
+                        Database::new(fallback_db_path.clone()).await
+                    })
+                    .expect("failed to initialize database");
+                    (db, fallback_db_path, fallback_backup_dir)
+                }
+            };
 
             // Cleanup backups older than 30 days
             if let Err(err) = cleanup_old_backups(&backup_dir, THIRTY_DAYS_SECS) {
@@ -41,10 +70,6 @@ pub fn run() {
             if let Err(err) = db::backup_db_file_if_exists(&db_path, &backup_dir, "startup") {
                 eprintln!("Startup DB backup failed: {err}");
             }
-
-            let db_instance = tauri::async_runtime::block_on(async {
-                Database::new(db_path).await
-            }).expect("failed to initialize database");
 
             app.manage(AppState {
                 db: Arc::new(RwLock::new(Some(db_instance))),
