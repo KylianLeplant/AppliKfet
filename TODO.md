@@ -1,1 +1,3 @@
 - stats bénéfice chaque commande
+- changer nom et logo app
+- ajouter cursor pointer sur boutons 

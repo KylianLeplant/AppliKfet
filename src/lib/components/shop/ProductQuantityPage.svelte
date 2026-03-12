@@ -3,6 +3,7 @@
     import * as Card from "$lib/components/ui/card/index.js";
     import { Button } from "$lib/components/ui/button/index.js";
     import { Slider } from "$lib/components/ui/slider/index.js";
+    import { resolveImageSrc } from "$lib/images";
 
     let { product, customer, onConfirm, onBack }: { 
         product: Product, 
@@ -41,7 +42,7 @@
         <!-- Image -->
         <div class="relative h-48 bg-slate-100">
             {#if product.imagePath}
-                <img src={product.imagePath} alt={product.name} class="w-full h-full object-cover" />
+                <img src={resolveImageSrc(product.imagePath) ?? undefined} alt={product.name} class="w-full h-full object-cover" />
             {:else}
                 <div class="w-full h-full flex items-center justify-center text-slate-400 text-sm">
                     Pas d'image

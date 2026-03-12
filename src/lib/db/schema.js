@@ -1,0 +1,53 @@
+import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
+export const categories = sqliteTable("categories", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    dept: text("dept").notNull(),
+    year: text("year").notNull(),
+    createdAt: text("created_at").default(sql `CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").default(sql `CURRENT_TIMESTAMP`)
+});
+export const customers = sqliteTable("customers", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    firstName: text("firstName").notNull(),
+    lastName: text("lastName").notNull(),
+    account: real("account").default(0),
+    isKfetier: integer("isKfetier", { mode: "boolean" }).default(false),
+    categoryId: integer("categoryId").references(() => categories.id),
+    createdAt: text("created_at").default(sql `CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").default(sql `CURRENT_TIMESTAMP`)
+});
+export const productsCategories = sqliteTable("productsCategories", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    imagePath: text("imagePath"),
+    createdAt: text("created_at").default(sql `CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").default(sql `CURRENT_TIMESTAMP`)
+});
+export const products = sqliteTable("products", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    price: real("price").notNull(),
+    priceForThree: real("priceForThree"),
+    priceForKfetier: real("priceForKfetier").notNull(),
+    priceForThreeKfetier: real("priceForThreeKfetier"),
+    categoryId: integer("categoryId").references(() => productsCategories.id),
+    imagePath: text("imagePath"),
+    createdAt: text("created_at").default(sql `CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").default(sql `CURRENT_TIMESTAMP`)
+});
+export const orders = sqliteTable("orders", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customerId").references(() => customers.id),
+    productId: integer("productId").references(() => products.id),
+    quantity: integer("quantity").notNull(),
+    totalPrice: real("totalPrice").notNull(),
+    createdAt: text("created_at").default(sql `CURRENT_TIMESTAMP`)
+});
+export const moneyAdjustments = sqliteTable("money_adjustments", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customerId").references(() => customers.id).notNull(),
+    amount: real("amount").notNull(),
+    createdAt: text("created_at").default(sql `CURRENT_TIMESTAMP`)
+});

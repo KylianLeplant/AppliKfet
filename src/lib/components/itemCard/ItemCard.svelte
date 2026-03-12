@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Card } from "$lib/components/ui/card/index.js";
+    import { resolveImageSrc } from "$lib/images";
     
     let { name, subtitle, imagePath, onclick }: { 
         name: string,
@@ -25,7 +26,7 @@
 >
     {#if imagePath}
         <div class="absolute inset-0 w-full h-full">
-            <img src={imagePath} alt={name} class="w-full h-full object-cover" />
+            <img src={resolveImageSrc(imagePath) ?? undefined} alt={name} class="w-full h-full object-cover" />
         </div>
     {:else}
         <div class="absolute inset-0 w-full h-full bg-slate-100"></div>

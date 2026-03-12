@@ -6,6 +6,7 @@ import { defineConfig } from 'vite';
 const host = process.env.TAURI_DEV_HOST;
 
 export default defineConfig({
+	publicDir: 'static',
 	plugins: [svelte({ compilerOptions: { runes: true } }), tailwindcss()],
 	resolve: {
 		alias: {

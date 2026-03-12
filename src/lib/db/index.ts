@@ -3,7 +3,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { customers, categories, productsCategories, products, orders, moneyAdjustments, type NewCustomer, type NewOrder, type NewProduct, type NewProductCategory, type NewCategory } from "./schema";
 import * as schema from "./schema";
 import { eq, sql } from "drizzle-orm";
-import { seed } from "./seed";
 
 // Configuration de la connexion Drizzle via Tauri Commands (Rust SQLx)
 export const db = drizzle(
@@ -116,8 +115,6 @@ export async function initDb() {
             "created_at" TEXT DEFAULT CURRENT_TIMESTAMP
         );
         `);
-
-        await seed(db);
     } catch (e) {
         console.error("Failed to init DB:", e);
     }
@@ -138,7 +135,6 @@ export async function resetDb() {
     // Re-initialize tables
     await initDb();
     
-    console.log("Database successfully reset and re-seeded.");
   } catch (error) {
     console.error("Error during database reset:", error);
     throw error;

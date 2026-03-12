@@ -19,6 +19,7 @@
     import * as Select from "$lib/components/ui/select/index.js";
     import * as Dialog from "$lib/components/ui/dialog/index.js";
     import { toast } from "svelte-sonner";
+    import { resolveImageSrc } from "$lib/images";
 
     let products = $state<Product[]>([]);
     let categories = $state<ProductCategory[]>([]);
@@ -151,7 +152,7 @@
             <div class="bg-white rounded-lg border border-slate-200 overflow-hidden flex flex-col">
                 <div class="h-32 bg-slate-100 relative">
                     {#if product.imagePath}
-                        <img src={product.imagePath} alt={product.name} class="w-full h-full object-cover" />
+                        <img src={resolveImageSrc(product.imagePath) ?? undefined} alt={product.name} class="w-full h-full object-cover" />
                     {:else}
                         <div class="w-full h-full flex items-center justify-center text-slate-300 text-sm">Pas d'image</div>
                     {/if}
@@ -236,7 +237,7 @@
                                 <div class="border-2 border-dashed border-slate-200 rounded-lg p-4 text-center cursor-pointer hover:bg-slate-50 w-full">
                                     {#if currentProduct.imagePath}
                                         <div class="flex items-center gap-2 justify-center">
-                                            <img src={currentProduct.imagePath} alt="Aperçu" class="w-10 h-10 object-cover rounded" />
+                                            <img src={resolveImageSrc(currentProduct.imagePath) ?? undefined} alt="Aperçu" class="w-10 h-10 object-cover rounded" />
                                             <span class="text-xs text-slate-500 truncate max-w-[150px]">{currentProduct.imagePath}</span>
                                         </div>
                                     {:else}

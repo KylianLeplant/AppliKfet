@@ -8,10 +8,114 @@ use db::{
     Database,
     cleanup_old_backups,
 };
-use std::path::PathBuf;
+use sqlx::{Pool, Row, Sqlite};
+use std::fs;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tauri::Manager; // Important pour .manage()
+
+fn resolve_shared_base_dir(user_app_data_dir: &Path) -> PathBuf {
+    if cfg!(target_os = "windows") {
+        std::env::var_os("PROGRAMDATA")
+            .map_or_else(|| user_app_data_dir.to_path_buf(), PathBuf::from)
+            .join("AppliKfet")
+    } else {
+        user_app_data_dir.to_path_buf()
+    }
+}
+
+fn copy_dir_contents(source_dir: &Path, target_dir: &Path) -> Result<(), String> {
+    if !source_dir.exists() {
+        return Ok(());
+    }
+
+    fs::create_dir_all(target_dir).map_err(|e| e.to_string())?;
+
+    for entry in fs::read_dir(source_dir).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let source_path = entry.path();
+        let target_path = target_dir.join(entry.file_name());
+
+        if source_path.is_dir() {
+            copy_dir_contents(&source_path, &target_path)?;
+        } else if !target_path.exists() {
+            fs::copy(&source_path, &target_path).map_err(|e| e.to_string())?;
+        }
+    }
+
+    Ok(())
+}
+
+fn sync_seed_images(app_handle: &tauri::AppHandle, image_root: &Path) -> Result<(), String> {
+    let current_dir = std::env::current_dir().map_err(|e| e.to_string())?;
+
+    for folder in ["products", "products_categories"] {
+        let target_dir = image_root.join(folder);
+        fs::create_dir_all(&target_dir).map_err(|e| e.to_string())?;
+
+        let mut candidates = Vec::new();
+        if let Ok(resource_dir) = app_handle.path().resource_dir() {
+            candidates.push(resource_dir.join(folder));
+        }
+        candidates.push(current_dir.join("static").join(folder));
+        if let Some(parent) = current_dir.parent() {
+            candidates.push(parent.join("static").join(folder));
+        }
+
+        if let Some(source_dir) = candidates.into_iter().find(|candidate| candidate.exists()) {
+            copy_dir_contents(&source_dir, &target_dir)?;
+        }
+    }
+
+    Ok(())
+}
+
+fn normalize_seed_image_path(image_path: &str, image_root: &Path, folder: &str) -> Option<String> {
+    let trimmed = image_path.trim();
+    if trimmed.is_empty() || Path::new(trimmed).is_absolute() {
+        return None;
+    }
+
+    let without_static = trimmed.strip_prefix("static/").unwrap_or(trimmed);
+    let without_leading_slash = without_static.trim_start_matches(['/', '\\']);
+    let folder_prefix = format!("{folder}/");
+    let file_name = without_leading_slash.strip_prefix(&folder_prefix)?;
+
+    Some(image_root.join(folder).join(file_name).to_string_lossy().into_owned())
+}
+
+async fn migrate_image_paths(pool: &Pool<Sqlite>, image_root: &Path) -> Result<(), String> {
+    for (table, folder) in [
+        ("products", "products"),
+        ("productsCategories", "products_categories"),
+    ] {
+        let select_sql = format!(
+            "SELECT id, imagePath FROM {table} WHERE imagePath IS NOT NULL AND imagePath != ''"
+        );
+        let update_sql = format!("UPDATE {table} SET imagePath = ? WHERE id = ?");
+
+        for row in sqlx::query(&select_sql)
+            .fetch_all(pool)
+            .await
+            .map_err(|e| e.to_string())?
+        {
+            let id: i64 = row.try_get("id").map_err(|e| e.to_string())?;
+            let image_path: String = row.try_get("imagePath").map_err(|e| e.to_string())?;
+
+            if let Some(normalized_path) = normalize_seed_image_path(&image_path, image_root, folder) {
+                sqlx::query(&update_sql)
+                    .bind(normalized_path)
+                    .bind(id)
+                    .execute(pool)
+                    .await
+                    .map_err(|e| e.to_string())?;
+            }
+        }
+    }
+
+    Ok(())
+}
 
 #[allow(clippy::missing_panics_doc)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -33,13 +137,7 @@ pub fn run() {
             let user_app_data_dir = app_handle.path().app_data_dir().expect("failed to get app data dir");
 
             // Windows: prefer a machine-wide folder so all users share the same DB.
-            let shared_base_dir = if cfg!(target_os = "windows") {
-                std::env::var_os("PROGRAMDATA")
-                    .map_or_else(|| user_app_data_dir.clone(), PathBuf::from)
-                    .join("AppliKfet")
-            } else {
-                user_app_data_dir.clone()
-            };
+            let shared_base_dir = resolve_shared_base_dir(&user_app_data_dir);
 
             let shared_db_path = shared_base_dir.join("kfet_v2.db");
             let shared_backup_dir = shared_base_dir.join("backups");
@@ -69,6 +167,18 @@ pub fn run() {
 
             if let Err(err) = db::backup_db_file_if_exists(&db_path, &backup_dir, "startup") {
                 eprintln!("Startup DB backup failed: {err}");
+            }
+
+            let image_root = db_path
+                .parent()
+                .map_or_else(|| shared_base_dir.join("images"), |parent| parent.join("images"));
+
+            if let Err(err) = sync_seed_images(&app_handle, &image_root) {
+                eprintln!("Image sync failed: {err}");
+            }
+
+            if let Err(err) = tauri::async_runtime::block_on(migrate_image_paths(&db_instance.pool, &image_root)) {
+                eprintln!("Image path migration failed: {err}");
             }
 
             app.manage(AppState {

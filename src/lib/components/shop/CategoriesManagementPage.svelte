@@ -15,6 +15,7 @@
     import { Button } from "$lib/components/ui/button/index.js";
     import * as Dialog from "$lib/components/ui/dialog/index.js";
     import { toast } from "svelte-sonner";
+    import { resolveImageSrc } from "$lib/images";
 
     let categories = $state<ProductCategory[]>([]);
     let searchQuery = $state("");
@@ -125,7 +126,7 @@
             <div class="bg-white rounded-lg border border-slate-200 overflow-hidden flex flex-col h-44">
                 <div class="flex-1 bg-slate-100 relative overflow-hidden">
                     {#if category.imagePath}
-                        <img src={category.imagePath} alt={category.name} class="w-full h-full object-cover" />
+                        <img src={resolveImageSrc(category.imagePath) ?? undefined} alt={category.name} class="w-full h-full object-cover" />
                     {:else}
                         <div class="w-full h-full flex items-center justify-center text-slate-300 text-sm">Pas d'image</div>
                     {/if}
@@ -177,7 +178,7 @@
                             <div class="border-2 border-dashed border-slate-200 rounded-lg p-4 text-center cursor-pointer hover:bg-slate-50 w-full">
                                 {#if currentCategory.imagePath}
                                     <div class="flex flex-col items-center gap-2">
-                                        <img src={currentCategory.imagePath} alt="Aperçu" class="w-20 h-20 object-cover rounded" />
+                                        <img src={resolveImageSrc(currentCategory.imagePath) ?? undefined} alt="Aperçu" class="w-20 h-20 object-cover rounded" />
                                         <span class="text-xs text-slate-500 break-all max-w-[200px]">{currentCategory.imagePath}</span>
                                     </div>
                                 {:else}
