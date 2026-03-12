@@ -208,6 +208,7 @@ pub fn run() {
                 }
             }
         })
+        .plugin(tauri_plugin_prevent_default::init())
         .invoke_handler(tauri::generate_handler![
             read, 
             write,

@@ -28,3 +28,4 @@ thiserror = "2.0.12"
 sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite", "macros", "migrate"] }
 tokio = { version = "1", features = ["full"] }
 anyhow = "1"
+tauri-plugin-prevent-default = "4"
