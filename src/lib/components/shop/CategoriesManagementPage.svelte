@@ -17,6 +17,11 @@
     import { toast } from "svelte-sonner";
     import { resolveImageSrc } from "$lib/images";
 
+    type SaveImageResponse = {
+        path: string;
+        alreadyExisted: boolean;
+    };
+
     let categories = $state<ProductCategory[]>([]);
     let searchQuery = $state("");
     let isEditing = $state(false);
@@ -88,14 +93,18 @@
             const buffer = await file.arrayBuffer();
              const bytes = new Uint8Array(buffer);
             
-            const path = await invoke<string>("save_image", {
+            const result = await invoke<SaveImageResponse>("save_image", {
                 folder: "products_categories",
                 filename: file.name,
                 content: Array.from(bytes) // Tauri v2 handles Vec<u8> from number[]
             });
             
-            currentCategory.imagePath = path;
-            toast.success("Image téléchargée : " + file.name);
+            currentCategory.imagePath = result.path;
+            if (result.alreadyExisted) {
+                toast.warning("L'image existe déjà : utilisation du fichier existant");
+            } else {
+                toast.success("Image téléchargée : " + file.name);
+            }
         } catch (e) {
             console.error(e);
             toast.error("Erreur : " + e);

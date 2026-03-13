@@ -1,7 +1,7 @@
 use super::errors::Error;
+use serde::Serialize;
 use std::fs;
 use std::path::{Path, PathBuf};
-use serde::Serialize;
 use sqlx::FromRow;
 use sqlx::sqlite::SqlitePoolOptions;
 use tauri::Manager;
@@ -48,8 +48,20 @@ pub fn write(path: String, contents: String) -> Result<(), Error> {
     Ok(())
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SaveImageResult {
+    pub path: String,
+    pub already_existed: bool,
+}
+
 #[tauri::command]
-pub fn save_image(app: tauri::AppHandle, folder: &str, filename: &str, content: Vec<u8>) -> Result<String, String> {
+pub fn save_image(
+    app: tauri::AppHandle,
+    folder: &str,
+    filename: &str,
+    content: Vec<u8>,
+) -> Result<SaveImageResult, String> {
     let user_app_data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
 
     let base_dir = if cfg!(target_os = "windows") {
@@ -69,12 +81,19 @@ pub fn save_image(app: tauri::AppHandle, folder: &str, filename: &str, content: 
     fs::create_dir_all(&folder_path).map_err(|e| e.to_string())?;
 
     let file_path = folder_path.join(safe_filename);
+    let stored_path = file_path.to_string_lossy().into_owned();
 
     if file_path.exists() {
-        return Err(format!("Le fichier '{safe_filename}' existe déjà dans le dossier '{folder}'"));
+        return Ok(SaveImageResult {
+            path: stored_path,
+            already_existed: true,
+        });
     }
 
     fs::write(&file_path, content).map_err(|e| e.to_string())?;
 
-    Ok(file_path.to_string_lossy().into_owned())
+    Ok(SaveImageResult {
+        path: stored_path,
+        already_existed: false,
+    })
 }

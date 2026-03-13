@@ -123,7 +123,7 @@
           checked={isHideSaveFilter}
           onCheckedChange={handleHideSaveChange}
         />
-        Masquer Save
+        Masquer anciens
       </label>
 
       <div class="flex items-center gap-2 text-sm">
