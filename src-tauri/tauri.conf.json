@@ -15,6 +15,7 @@
         "title": "Kfet",
         "width": 800,
         "height": 600,
+        "maximized": true,
         "dragDropEnabled": false,
         "resizable": true,
         "fullscreen": false,
