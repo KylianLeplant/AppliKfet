@@ -33,11 +33,23 @@ class FileDropZoneState {
 			currentTarget: EventTarget;
 		}
 	) {
+		e.preventDefault();
+		e.stopPropagation();
+
 		if (this.opts.disabled.current || !this.canUploadFiles) return;
 
-		e.preventDefault();
+		const dataTransfer = e.dataTransfer;
+		if (!dataTransfer) return;
 
-		const droppedFiles = Array.from(e.dataTransfer?.files ?? []);
+		const droppedFromItems = Array.from(dataTransfer.items)
+			.filter((item) => item.kind === 'file')
+			.map((item) => item.getAsFile())
+			.filter((file): file is File => file !== null);
+
+		const droppedFiles =
+			droppedFromItems.length > 0 ? droppedFromItems : Array.from(dataTransfer.files ?? []);
+
+		if (droppedFiles.length === 0) return;
 
 		await this.upload(droppedFiles);
 	}
@@ -148,6 +160,8 @@ class FileDropZoneTrigger {
 
 	ondragover(e: DragEvent) {
 		e.preventDefault();
+		e.stopPropagation();
+		if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
 	}
 
 	ondrop(
