@@ -1,6 +1,6 @@
 <script lang="ts">
   import CustomersTable from './CustomersTable.svelte';
-  import { type Customer, type Category, getCategories, updateCustomer, addMoneyToCustomer } from "$lib/db";
+  import { type Customer, type Category, type NewCustomer, getCategories, createCustomer, updateCustomer, addMoneyToCustomer } from "$lib/db";
   import { onMount } from 'svelte';
   import Button from '../ui/button/button.svelte';
   import { Input } from '../ui/input';
@@ -21,6 +21,15 @@
   let allCategories = $state<Category[]>([]);
   let refreshCount = $state(0);
   let searchTerm = $state("");
+  let isCreating = $state(false);
+
+  // New customer form state
+  let newFirstName = $state("");
+  let newLastName = $state("");
+  let newIsKfetier = $state(false);
+  let newDept = $state("");
+  let newYear = $state("");
+  let newAccount = $state(0);
   
   // Form state
   let editFirstName = $state("");
@@ -45,6 +54,55 @@
 
   // Liste exhaustive des départements (toujours disponible)
   let allUniqueDepts = $derived(Array.from(new Set(allCategories.map(c => c.dept))).sort());
+
+  // Derived values for new customer form
+  let newAvailableYears = $derived.by(() => {
+    if (!newDept) return Array.from(new Set(allCategories.map(c => c.year))).sort();
+    return Array.from(new Set(allCategories.filter(c => c.dept === newDept).map(c => c.year))).sort();
+  });
+
+  $effect(() => {
+    if (newDept && !newAvailableYears.includes(newYear)) {
+      newYear = newAvailableYears[0] || "";
+    }
+  });
+
+  function startCreating() {
+    newFirstName = "";
+    newLastName = "";
+    newIsKfetier = false;
+    newDept = allUniqueDepts[0] || "";
+    newYear = "";
+    newAccount = 0;
+    isCreating = true;
+  }
+
+  async function handleCreate() {
+    if (!newFirstName.trim() || !newLastName.trim()) {
+      toast.error("Prénom et nom obligatoires");
+      return;
+    }
+    const category = allCategories.find(c => c.dept === newDept && c.year === newYear);
+    if (!category) {
+      toast.error("Combinaison Département/Année invalide.");
+      return;
+    }
+    try {
+      await createCustomer({
+        firstName: newFirstName.trim(),
+        lastName: newLastName.trim(),
+        isKfetier: newIsKfetier,
+        categoryId: category.id,
+        account: newAccount
+      } as NewCustomer);
+      toast.success(`Client ${newFirstName} ${newLastName} créé`);
+      isCreating = false;
+      refreshCount++;
+    } catch (e) {
+      console.error("Error creating customer:", e);
+      toast.error("Erreur lors de la création");
+    }
+  }
 
   // Liste des années filtrée par le département choisi
   let availableYears = $derived.by(() => {
@@ -138,13 +196,13 @@
 </script>
 
 <div class="space-y-4 w-full">
-    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-4">
+    <div class="flex items-end justify-between gap-4">
         <div class="space-y-3">
             <div>
                 <h1 class="text-2xl font-semibold text-slate-800">Clients</h1>
                 <p class="text-sm text-slate-500">Sélectionnez un client pour commencer une commande</p>
             </div>
-            
+
             <div class="flex flex-wrap gap-2">
                 <Button 
                     onclick={() => selectedCustomer && onStartOrder(selectedCustomer)}
@@ -175,7 +233,94 @@
                 {/if}
             </div>
         </div>
-        
+
+        <Button variant="outline" onclick={startCreating}>
+            Ajouter un client
+        </Button>
+    </div>
+
+        <Dialog.Root bind:open={isCreating}>
+            <Dialog.Content class="sm:max-w-md">
+                <Dialog.Header>
+                    <Dialog.Title>Ajouter un client</Dialog.Title>
+                </Dialog.Header>
+
+                <div class="space-y-4 py-2">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <Label for="new-fn">Prénom</Label>
+                            <Input id="new-fn" bind:value={newFirstName} placeholder="Jean" />
+                        </div>
+                        <div class="space-y-1">
+                            <Label for="new-ln">Nom</Label>
+                            <Input id="new-ln" bind:value={newLastName} placeholder="Dupont" />
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                        <Checkbox id="new-isk" bind:checked={newIsKfetier} />
+                        <Label for="new-isk" class="cursor-pointer">Compte Kfétier</Label>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <Label for="new-dept">Département</Label>
+                            <Select.Root type="single" bind:value={newDept}>
+                                <Select.Trigger id="new-dept" class="w-full">
+                                    {newDept || "Dépt."}
+                                </Select.Trigger>
+                                <Select.Content>
+                                    {#each allUniqueDepts as dept}
+                                        <Select.Item value={dept}>{dept}</Select.Item>
+                                    {/each}
+                                </Select.Content>
+                            </Select.Root>
+                        </div>
+                        <div class="space-y-1">
+                            <Label for="new-year">Année</Label>
+                            <Select.Root type="single" bind:value={newYear}>
+                                <Select.Trigger id="new-year" class="w-full">
+                                    {newYear || "Année"}
+                                </Select.Trigger>
+                                <Select.Content>
+                                    {#each newAvailableYears as year}
+                                        <Select.Item value={year}>{year}</Select.Item>
+                                    {/each}
+                                </Select.Content>
+                            </Select.Root>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <Label for="new-account">Solde initial (€)</Label>
+                        <Input
+                            id="new-account"
+                            type="number"
+                            step="0.01"
+                            bind:value={newAccount}
+                            placeholder="0.00"
+                        />
+                    </div>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <Button
+                        variant="outline"
+                        onclick={() => isCreating = false}
+                        class="flex-1"
+                    >
+                        Annuler
+                    </Button>
+                    <Button
+                        onclick={handleCreate}
+                        class="flex-[2]"
+                    >
+                        Créer
+                    </Button>
+                </div>
+            </Dialog.Content>
+        </Dialog.Root>
+
         <Dialog.Root bind:open={isAddingMoney}>
             <Dialog.Content class="sm:max-w-[400px]">
                 <Dialog.Header>
@@ -340,7 +485,6 @@
                 </div>
             </Sheet.Content>
         </Sheet.Root>
-    </div>
 
     <div class="bg-white p-4 rounded-lg border border-slate-200 space-y-4">
         <Input

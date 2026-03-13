@@ -291,6 +291,10 @@ export async function getOrdersWithDetails(): Promise<OrderWithDetails[]> {
   }));
 }
 
+export async function createCustomer(data: NewCustomer) {
+  return await db.insert(customers).values(data);
+}
+
 export async function updateCustomer(id: number, data: Partial<NewCustomer>) {
   return await db.update(customers)
     .set(data)
