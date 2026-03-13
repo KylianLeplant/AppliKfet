@@ -1,2 +1,1 @@
 - stats bénéfice chaque commande
-- ajouter cursor pointer sur boutons 
